@@ -2,7 +2,7 @@
 
 **Gamified habit tracker untuk persiapan SNBT** — Flutter native offline app.
 
-> *made by ran ft envy*
+> *made by ran ft envy* · APK release: `app-release.apk` (19.4 MB) ✅
 
 ---
 
