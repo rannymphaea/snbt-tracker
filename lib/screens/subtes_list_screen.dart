@@ -14,7 +14,7 @@ class SubtesListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<ProgressProvider>(
       builder: (context, prov, _) => Scaffold(
-        backgroundColor: AppColors.cream,
+        backgroundColor: AppColors.surface,
         body: SafeArea(
           child: ListView(
             padding: const EdgeInsets.all(16),
@@ -27,7 +27,7 @@ class SubtesListScreen extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.dark.withValues(alpha: 0.5))),
+                      color: AppColors.border.withValues(alpha: 0.5))),
               const SizedBox(height: 16),
               ...prov.subtests.asMap().entries.map((entry) {
                 final i = entry.key;
@@ -116,7 +116,7 @@ class SubtesListScreen extends StatelessWidget {
                             ),
                             const SizedBox(width: 8),
                             const Icon(Icons.chevron_right_rounded,
-                                color: AppColors.hint),
+                                color: AppColors.textMuted),
                           ],
                         ),
                       ),

@@ -1,10 +1,10 @@
-// lib/data/repository.dart — All DB repositories
+// lib/data/repository.dart -- All DB repositories
 import 'dart:convert';
 import 'package:sqflite/sqflite.dart';
 import '../models/models.dart';
 import 'database_helper.dart';
 
-// ─── Settings ───────────────────────────────────────────────────────────────
+// -- Settings --
 class SettingsRepo {
   static Future<Database> get _db => DatabaseHelper.database;
 
@@ -31,20 +31,16 @@ class SettingsRepo {
       set(key, value ? '1' : '0');
 }
 
-// ─── Seed ───────────────────────────────────────────────────────────────────
+// -- Seed (updated for v2 JSON with abbr field) --
 class SeedRepo {
   static Future<Database> get _db => DatabaseHelper.database;
 
   static Future<bool> isSeeded() async =>
-      await SettingsRepo.getBool('seeded_flag');
+      await SettingsRepo.getBool('seeded_v2');
 
   static Future<void> seed(Map<String, dynamic> json) async {
     final db = await _db;
     final subtests = json['subtests'] as List;
-    final colors = [
-      '#2E6FF2', '#FF6B4A', '#3BA55C', '#9B59B6', '#F5B942', '#1ABC9C',
-    ];
-    final abbrs = ['PM', 'LI', 'LE', 'PU', 'PBM', 'PKB'];
 
     await db.transaction((txn) async {
       for (int si = 0; si < subtests.length; si++) {
@@ -53,10 +49,10 @@ class SeedRepo {
         await txn.insert('subtests', {
           'id': subId,
           'name': sub['name'] as String,
-          'abbr': abbrs[si % abbrs.length],
-          'color': sub['color'] ?? colors[si % colors.length],
+          'abbr': sub['abbr'] as String? ?? subId.substring(0, 2).toUpperCase(),
+          'color': sub['color'] as String? ?? '#7C3AED',
           'sort_order': si,
-        }, conflictAlgorithm: ConflictAlgorithm.ignore);
+        }, conflictAlgorithm: ConflictAlgorithm.replace);
 
         final chapters = sub['chapters'] as List? ?? [];
         for (int ci = 0; ci < chapters.length; ci++) {
@@ -67,7 +63,7 @@ class SeedRepo {
             'subtest_id': subId,
             'name': ch['name'] as String,
             'sort_order': ci,
-          }, conflictAlgorithm: ConflictAlgorithm.ignore);
+          }, conflictAlgorithm: ConflictAlgorithm.replace);
 
           final topics = ch['topics'] as List? ?? [];
           for (int ti = 0; ti < topics.length; ti++) {
@@ -80,7 +76,7 @@ class SeedRepo {
               'name': t['name'] as String,
               'is_custom': 0,
               'sort_order': ti,
-            }, conflictAlgorithm: ConflictAlgorithm.ignore);
+            }, conflictAlgorithm: ConflictAlgorithm.replace);
             await txn.insert('progress', {
               'topic_id': tId,
               'pelajari': 0, 'latihan': 0, 'review': 0,
@@ -90,11 +86,11 @@ class SeedRepo {
         }
       }
     });
-    await SettingsRepo.setBool('seeded_flag', true);
+    await SettingsRepo.setBool('seeded_v2', true);
   }
 }
 
-// ─── Subtest ────────────────────────────────────────────────────────────────
+// -- Subtest --
 class SubtestRepo {
   static Future<Database> get _db => DatabaseHelper.database;
 
@@ -125,7 +121,7 @@ class SubtestRepo {
   }
 }
 
-// ─── Chapter ────────────────────────────────────────────────────────────────
+// -- Chapter --
 class ChapterRepo {
   static Future<Database> get _db => DatabaseHelper.database;
 
@@ -140,9 +136,45 @@ class ChapterRepo {
       sortOrder: r['sort_order'] as int,
     )).toList();
   }
+
+  static Future<void> insert(ChapterModel ch) async {
+    final db = await _db;
+    await db.insert('chapters', {
+      'id': ch.id,
+      'subtest_id': ch.subtestId,
+      'name': ch.name,
+      'sort_order': ch.sortOrder,
+    }, conflictAlgorithm: ConflictAlgorithm.ignore);
+  }
+
+  static Future<void> update(String id, String newName) async {
+    final db = await _db;
+    await db.update('chapters', {'name': newName}, where: 'id = ?', whereArgs: [id]);
+  }
+
+  static Future<void> delete(String id) async {
+    final db = await _db;
+    // Cascade: delete topics and progress for this chapter
+    final topics = await db.query('topics', where: 'chapter_id = ?', whereArgs: [id]);
+    for (final t in topics) {
+      await db.delete('progress', where: 'topic_id = ?', whereArgs: [t['id']]);
+    }
+    await db.delete('topics', where: 'chapter_id = ?', whereArgs: [id]);
+    await db.delete('chapters', where: 'id = ?', whereArgs: [id]);
+  }
+
+  static Future<void> reorder(List<String> orderedIds) async {
+    final db = await _db;
+    await db.transaction((txn) async {
+      for (int i = 0; i < orderedIds.length; i++) {
+        await txn.update('chapters', {'sort_order': i},
+            where: 'id = ?', whereArgs: [orderedIds[i]]);
+      }
+    });
+  }
 }
 
-// ─── Topic ──────────────────────────────────────────────────────────────────
+// -- Topic --
 class TopicRepo {
   static Future<Database> get _db => DatabaseHelper.database;
 
@@ -180,7 +212,6 @@ class TopicRepo {
     final db = await _db;
     final id = 'custom-${DateTime.now().millisecondsSinceEpoch}';
     await db.transaction((txn) async {
-      // Ensure chapter exists
       await txn.insert('chapters', {
         'id': chapterId,
         'subtest_id': subtestId,
@@ -204,6 +235,17 @@ class TopicRepo {
     });
   }
 
+  static Future<void> delete(String id) async {
+    final db = await _db;
+    await db.delete('progress', where: 'topic_id = ?', whereArgs: [id]);
+    await db.delete('topics', where: 'id = ?', whereArgs: [id]);
+  }
+
+  static Future<void> update(String id, String newName) async {
+    final db = await _db;
+    await db.update('topics', {'name': newName}, where: 'id = ?', whereArgs: [id]);
+  }
+
   static TopicModel _fromRow(Map<String, Object?> r) => TopicModel(
     id: r['id'] as String,
     chapterId: r['chapter_id'] as String,
@@ -214,7 +256,7 @@ class TopicRepo {
   );
 }
 
-// ─── Progress ───────────────────────────────────────────────────────────────
+// -- Progress --
 class ProgressRepo {
   static Future<Database> get _db => DatabaseHelper.database;
 
@@ -247,7 +289,6 @@ class ProgressRepo {
       ON CONFLICT(topic_id) DO UPDATE SET $col = ?, updated_at = ?
     ''', [topicId, newVal ? 1 : 0, _now(), newVal ? 1 : 0, _now()]);
 
-    // Update activity log for today
     if (newVal) await ActivityRepo.incrementToday();
   }
 
@@ -262,22 +303,9 @@ class ProgressRepo {
 
   static Future<void> resetAll() async {
     final db = await _db;
-    await db.rawUpdate('''
-      UPDATE progress SET pelajari=0, latihan=0, review=0, catatan='', updated_at=''
-    ''');
+    await db.rawUpdate(
+      "UPDATE progress SET pelajari=0, latihan=0, review=0, catatan='', updated_at=''");
     await db.delete('activity_log');
-  }
-
-  // Count for a list of topic IDs
-  static Future<int> countCompleted(List<String> topicIds) async {
-    if (topicIds.isEmpty) return 0;
-    final db = await _db;
-    final placeholders = topicIds.map((_) => '?').join(',');
-    final rows = await db.rawQuery('''
-      SELECT SUM(pelajari + latihan + review) as total
-      FROM progress WHERE topic_id IN ($placeholders)
-    ''', topicIds);
-    return (rows.first['total'] as int?) ?? 0;
   }
 
   static ProgressModel _fromRow(Map<String, Object?> r) => ProgressModel(
@@ -292,7 +320,7 @@ class ProgressRepo {
   static String _now() => DateTime.now().toIso8601String();
 }
 
-// ─── Activity Log ────────────────────────────────────────────────────────────
+// -- Activity Log --
 class ActivityRepo {
   static Future<Database> get _db => DatabaseHelper.database;
 
@@ -346,36 +374,238 @@ class ActivityRepo {
     }
     return streak;
   }
-}
 
-// ─── Tryout Sessions ─────────────────────────────────────────────────────────
-class TryoutRepo {
-  static Future<Database> get _db => DatabaseHelper.database;
-
-  static Future<List<TryoutSession>> getAll() async {
+  // Edit check-in count for a specific date (manual correction)
+  static Future<void> setCount(String date, int count) async {
     final db = await _db;
-    final rows = await db.query('tryout_sessions', orderBy: 'date DESC');
-    return rows.map((r) => TryoutSession(
-      id: r['id'] as int?,
-      date: r['date'] as String,
-      scores: Map<String, int>.from(
-          (jsonDecode(r['scores'] as String) as Map).map(
-              (k, v) => MapEntry(k as String, v as int))),
-      notes: r['notes'] as String? ?? '',
-    )).toList();
+    if (count <= 0) {
+      await db.delete('activity_log', where: 'date = ?', whereArgs: [date]);
+    } else {
+      await db.execute('''
+        INSERT INTO activity_log (date, checks_count) VALUES (?, ?)
+        ON CONFLICT(date) DO UPDATE SET checks_count = ?
+      ''', [date, count, count]);
+    }
   }
 
-  static Future<void> add(TryoutSession s) async {
+  // Get all activity log entries (for history screen)
+  static Future<List<ActivityLog>> getAll() async {
     final db = await _db;
-    await db.insert('tryout_sessions', {
+    final rows = await db.query('activity_log', orderBy: 'date DESC');
+    return rows.map((r) => ActivityLog(
+      id: r['id'] as int?,
+      date: r['date'] as String,
+      checksCount: r['checks_count'] as int,
+    )).toList();
+  }
+}
+
+// -- v2: Daily Check-in Sessions --
+class CheckinRepo {
+  static Future<Database> get _db => DatabaseHelper.database;
+
+  static String _today() => DateTime.now().toIso8601String().split('T')[0];
+  static String _now() => DateTime.now().toIso8601String();
+
+  /// Record a study session
+  static Future<void> add({
+    required String subtestId,
+    required String chapterId,
+    String? topicId,
+    required int durationMinutes,
+  }) async {
+    final db = await _db;
+    await db.insert('daily_checkins', {
+      'date': _today(),
+      'subtest_id': subtestId,
+      'chapter_id': chapterId,
+      'topic_id': topicId,
+      'duration_minutes': durationMinutes,
+      'created_at': _now(),
+    });
+    // Also increment activity_log
+    await ActivityRepo.incrementToday();
+  }
+
+  /// Get all check-ins for today
+  static Future<List<DailyCheckin>> getToday() async {
+    final db = await _db;
+    final today = _today();
+    final rows = await db.query('daily_checkins',
+        where: 'date = ?', whereArgs: [today], orderBy: 'created_at DESC');
+    return rows.map(_fromRow).toList();
+  }
+
+  /// Get total duration (minutes) for today
+  static Future<int> getTodayMinutes() async {
+    final db = await _db;
+    final today = _today();
+    final rows = await db.rawQuery(
+      'SELECT SUM(duration_minutes) as total FROM daily_checkins WHERE date = ?',
+      [today]);
+    return (rows.first['total'] as int?) ?? 0;
+  }
+
+  /// Get total duration for a date range
+  static Future<int> getMinutesInRange(String startDate, String endDate) async {
+    final db = await _db;
+    final rows = await db.rawQuery(
+      'SELECT SUM(duration_minutes) as total FROM daily_checkins WHERE date >= ? AND date <= ?',
+      [startDate, endDate]);
+    return (rows.first['total'] as int?) ?? 0;
+  }
+
+  /// Get breakdown per subtest (for history charts)
+  static Future<Map<String, int>> getMinutesPerSubtest({String? startDate, String? endDate}) async {
+    final db = await _db;
+    String query = 'SELECT subtest_id, SUM(duration_minutes) as total FROM daily_checkins';
+    final args = <String>[];
+    if (startDate != null && endDate != null) {
+      query += ' WHERE date >= ? AND date <= ?';
+      args.addAll([startDate, endDate]);
+    }
+    query += ' GROUP BY subtest_id';
+    final rows = await db.rawQuery(query, args);
+    return {for (final r in rows) r['subtest_id'] as String: (r['total'] as int?) ?? 0};
+  }
+
+  /// Get all check-ins (for history)
+  static Future<List<DailyCheckin>> getAll() async {
+    final db = await _db;
+    final rows = await db.query('daily_checkins', orderBy: 'date DESC, created_at DESC');
+    return rows.map(_fromRow).toList();
+  }
+
+  /// Get daily totals for last N days
+  static Future<List<MapEntry<String, int>>> getDailyTotals(int days) async {
+    final db = await _db;
+    final results = <MapEntry<String, int>>[];
+    for (int i = days - 1; i >= 0; i--) {
+      final d = DateTime.now().subtract(Duration(days: i));
+      final dateStr = d.toIso8601String().split('T')[0];
+      final rows = await db.rawQuery(
+        'SELECT SUM(duration_minutes) as total FROM daily_checkins WHERE date = ?',
+        [dateStr]);
+      results.add(MapEntry(dateStr, (rows.first['total'] as int?) ?? 0));
+    }
+    return results;
+  }
+
+  static DailyCheckin _fromRow(Map<String, Object?> r) => DailyCheckin(
+    id: r['id'] as int?,
+    date: r['date'] as String,
+    subtestId: r['subtest_id'] as String,
+    chapterId: r['chapter_id'] as String,
+    topicId: r['topic_id'] as String?,
+    durationMinutes: r['duration_minutes'] as int,
+    createdAt: r['created_at'] as String,
+  );
+}
+
+// -- v2: Tryout Scores --
+class TryoutScoreRepo {
+  static Future<Database> get _db => DatabaseHelper.database;
+
+  static Future<List<TryoutScore>> getAll() async {
+    final db = await _db;
+    final rows = await db.query('tryout_scores', orderBy: 'date DESC');
+    return rows.map(_fromRow).toList();
+  }
+
+  static Future<void> add(TryoutScore s) async {
+    final db = await _db;
+    await db.insert('tryout_scores', {
+      'name': s.name,
       'date': s.date,
-      'scores': jsonEncode(s.scores),
+      'score_expected': s.scoreExpected,
+      'score_max': s.scoreMax,
+      'scores_detail': jsonEncode(s.scoresDetail),
       'notes': s.notes,
     });
   }
 
+  static Future<void> update(TryoutScore s) async {
+    final db = await _db;
+    await db.update('tryout_scores', {
+      'name': s.name,
+      'date': s.date,
+      'score_expected': s.scoreExpected,
+      'score_max': s.scoreMax,
+      'scores_detail': jsonEncode(s.scoresDetail),
+      'notes': s.notes,
+    }, where: 'id = ?', whereArgs: [s.id]);
+  }
+
   static Future<void> delete(int id) async {
     final db = await _db;
-    await db.delete('tryout_sessions', where: 'id = ?', whereArgs: [id]);
+    await db.delete('tryout_scores', where: 'id = ?', whereArgs: [id]);
+  }
+
+  static TryoutScore _fromRow(Map<String, Object?> r) => TryoutScore(
+    id: r['id'] as int?,
+    name: r['name'] as String,
+    date: r['date'] as String,
+    scoreExpected: r['score_expected'] as int?,
+    scoreMax: (r['score_max'] as int?) ?? 1000,
+    scoresDetail: Map<String, int>.from(
+        (jsonDecode((r['scores_detail'] as String?) ?? '{}') as Map)
+            .map((k, v) => MapEntry(k as String, v as int))),
+    notes: r['notes'] as String? ?? '',
+  );
+}
+
+// -- v2: Target PTN --
+class TargetPtnRepo {
+  static Future<Database> get _db => DatabaseHelper.database;
+
+  static Future<TargetPtn?> get() async {
+    final db = await _db;
+    final rows = await db.query('target_ptn', where: 'id = 1');
+    if (rows.isEmpty) return null;
+    final r = rows.first;
+    return TargetPtn(
+      university: r['university'] as String,
+      major: r['major'] as String,
+      passingGrade: r['passing_grade'] as int?,
+    );
+  }
+
+  static Future<void> set(TargetPtn t) async {
+    final db = await _db;
+    await db.insert('target_ptn', {
+      'id': 1,
+      'university': t.university,
+      'major': t.major,
+      'passing_grade': t.passingGrade,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+}
+
+// -- v2: XP & Level --
+class XpRepo {
+  static Future<Database> get _db => DatabaseHelper.database;
+
+  static Future<UserXp> get() async {
+    final db = await _db;
+    final rows = await db.query('user_xp', where: 'id = 1');
+    if (rows.isEmpty) return const UserXp();
+    final r = rows.first;
+    return UserXp(
+      totalXp: (r['total_xp'] as int?) ?? 0,
+      level: (r['level'] as int?) ?? 1,
+    );
+  }
+
+  /// Add XP from a study session (duration * 2)
+  static Future<UserXp> addFromCheckin(int durationMinutes) async {
+    final current = await get();
+    final xpGain = durationMinutes * 2;
+    final updated = current.addXp(xpGain);
+    final db = await _db;
+    await db.update('user_xp', {
+      'total_xp': updated.totalXp,
+      'level': updated.level,
+    }, where: 'id = 1');
+    return updated;
   }
 }

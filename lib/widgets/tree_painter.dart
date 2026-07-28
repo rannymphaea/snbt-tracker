@@ -148,7 +148,7 @@ class TreePainter extends CustomPainter {
           p,
           5,
           Paint()
-            ..color = AppColors.dark.withValues(alpha: 0.15)
+            ..color = AppColors.border.withValues(alpha: 0.15)
             ..style = PaintingStyle.stroke
             ..strokeWidth = 1);
     }
@@ -158,7 +158,7 @@ class TreePainter extends CustomPainter {
       Canvas canvas, double cx, double ground, int stage) {
     if (stage == 0) {
       final center = Offset(cx, ground - 25);
-      final paint = Paint()..color = AppColors.dark;
+      final paint = Paint()..color = AppColors.border;
       canvas.drawCircle(Offset(cx - 3, center.dy - 2), 1.5, paint);
       canvas.drawCircle(Offset(cx + 3, center.dy - 2), 1.5, paint);
       final smilePath = Path()
@@ -289,5 +289,20 @@ class _FakeRng {
     _seed = (_seed * 1664525 + 1013904223) & 0xFFFFFFFF;
     return (_seed & 0xFFFF) / 0xFFFF;
   }
+}
+
+/// Alias used by dashboard: maps growthLevel (1-20) -> stage (0-5)
+class TreeMascotPainter extends CustomPainter {
+  final double growthLevel;
+  TreeMascotPainter({required this.growthLevel});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final stage = ((growthLevel / 4).clamp(0, 5)).round();
+    TreePainter(stage: stage, leafAnim: 0.8).paint(canvas, size);
+  }
+
+  @override
+  bool shouldRepaint(TreeMascotPainter old) => old.growthLevel != growthLevel;
 }
 

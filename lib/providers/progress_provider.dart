@@ -17,7 +17,7 @@ class ProgressProvider extends ChangeNotifier {
     isLoading = true;
     notifyListeners();
 
-    // Seed if needed
+    // Seed if needed (v2: 7 subtests)
     _seeded = await SeedRepo.isSeeded();
     if (!_seeded) {
       try {

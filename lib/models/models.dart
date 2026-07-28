@@ -1,4 +1,4 @@
-// lib/models/models.dart — All data models
+// lib/models/models.dart -- All data models
 
 class SubtestModel {
   final String id;
@@ -91,7 +91,7 @@ class ProgressModel {
 
 class ActivityLog {
   final int? id;
-  final String date; // YYYY-MM-DD
+  final String date; // YYYY-MM-DD (local timezone)
   final int checksCount;
 
   const ActivityLog({this.id, required this.date, required this.checksCount});
@@ -100,22 +100,83 @@ class ActivityLog {
       ActivityLog(id: id, date: date, checksCount: checksCount ?? this.checksCount);
 }
 
-class TryoutSession {
+// -- v2: Daily check-in session --
+class DailyCheckin {
   final int? id;
-  final String date;
-  final Map<String, int> scores; // subtestId → score 0-100
-  final String notes;
+  final String date;          // yyyy-MM-dd local
+  final String subtestId;
+  final String chapterId;
+  final String? topicId;
+  final int durationMinutes;
+  final String createdAt;
 
-  const TryoutSession({
+  const DailyCheckin({
     this.id,
     required this.date,
-    required this.scores,
+    required this.subtestId,
+    required this.chapterId,
+    this.topicId,
+    required this.durationMinutes,
+    required this.createdAt,
+  });
+}
+
+// -- v2: Tryout score (replaces old TryoutSession) --
+class TryoutScore {
+  final int? id;
+  final String name;          // "Tryout Nasional 1"
+  final String date;          // yyyy-MM-dd
+  final int? scoreExpected;
+  final int scoreMax;
+  final Map<String, int> scoresDetail; // per-subtest
+  final String notes;
+
+  const TryoutScore({
+    this.id,
+    required this.name,
+    required this.date,
+    this.scoreExpected,
+    this.scoreMax = 1000,
+    this.scoresDetail = const {},
     this.notes = '',
   });
 
-  int get avgScore {
-    if (scores.isEmpty) return 0;
-    return scores.values.reduce((a, b) => a + b) ~/ scores.length;
+  int? get delta => null; // computed by caller based on previous score
+}
+
+// -- v2: Target PTN --
+class TargetPtn {
+  final int id;
+  final String university;
+  final String major;
+  final int? passingGrade;
+
+  const TargetPtn({
+    this.id = 1,
+    required this.university,
+    required this.major,
+    this.passingGrade,
+  });
+}
+
+// -- v2: User XP & Level --
+class UserXp {
+  final int totalXp;
+  final int level;
+
+  const UserXp({this.totalXp = 0, this.level = 1});
+
+  int get xpForNextLevel => level * 500;
+  double get progress => totalXp / xpForNextLevel;
+
+  UserXp addXp(int amount) {
+    int newXp = totalXp + amount;
+    int newLevel = level;
+    while (newXp >= newLevel * 500) {
+      newXp -= newLevel * 500;
+      newLevel++;
+    }
+    return UserXp(totalXp: newXp, level: newLevel);
   }
 }
 

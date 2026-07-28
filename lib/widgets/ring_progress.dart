@@ -93,7 +93,7 @@ class _RingProgressState extends State<RingProgress>
                     style: TextStyle(
                       fontSize: widget.fontSize,
                       fontWeight: FontWeight.w900,
-                      color: widget.textColor ?? AppColors.dark,
+                      color: widget.textColor ?? AppColors.border,
                       fontFamily: 'Nunito',
                     ),
                   ),
@@ -103,7 +103,7 @@ class _RingProgressState extends State<RingProgress>
                     style: TextStyle(
                       fontSize: widget.fontSize * 0.4,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.dark.withValues(alpha: 0.6),
+                      color: AppColors.border.withValues(alpha: 0.6),
                       fontFamily: 'Nunito',
                     ),
                     textAlign: TextAlign.center,

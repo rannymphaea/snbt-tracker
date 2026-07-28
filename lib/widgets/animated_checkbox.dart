@@ -84,7 +84,7 @@ class _AnimatedCheckboxState extends State<AnimatedCheckbox>
                 AppColors.coral,
                 AppColors.blue,
                 AppColors.lime,
-                AppColors.purple,
+                AppColors.violet,
               ][i % 5],
               size: 4 + _rng.nextDouble() * 4,
             ));
@@ -177,7 +177,7 @@ class _AnimatedCheckboxState extends State<AnimatedCheckbox>
               fontFamily: 'Nunito',
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: widget.value ? widget.color : AppColors.hint,
+              color: widget.value ? widget.color : AppColors.textMuted,
             ),
             child: Text(widget.label),
           ),

@@ -1,137 +1,148 @@
+// lib/utils/app_theme.dart -- Dark theme (Stitch AI palette)
 import 'package:flutter/material.dart';
 
-// ─── Color System ───────────────────────────────────────────────────────────
+// -- Color System (Dark) --
 class AppColors {
-  // Primary palette — vivid, bold (Quécaco-inspired)
-  static const blue    = Color(0xFF2563EB);  // vibrant blue
-  static const blueDk  = Color(0xFF1D4ED8);  // darker blue
-  static const coral   = Color(0xFFFF4D4D);  // vivid red-coral
-  static const lime    = Color(0xFF22C55E);  // vivid green
-  static const amber   = Color(0xFFFBBF24);  // vivid yellow
-  static const purple  = Color(0xFF8B5CF6);  // vivid purple
-  static const teal    = Color(0xFF14B8A6);  // vivid teal
-  static const pink    = Color(0xFFEC4899);  // vivid pink
+  // Background layers
+  static const bg         = Color(0xFF0D0D1A);   // deepest background
+  static const surface    = Color(0xFF1A1A2E);   // card surface
+  static const surfaceAlt = Color(0xFF252540);   // input fields, secondary
 
-  // Neutrals
-  static const dark    = Color(0xFF0F172A);  // almost black
-  static const cream   = Color(0xFFF8F7F4);  // warm off-white background
-  static const white   = Colors.white;
-  static const hint    = Color(0xFF94A3B8);
-  static const border  = Color(0xFF0F172A);
+  // Primary palette
+  static const accent     = Color(0xFF7C3AED);   // violet highlights
+  static const primary    = Color(0xFF22C55E);   // green CTA (login, start)
+  static const secondary  = Color(0xFFF59E0B);   // amber/orange (nav, tryout)
 
-  // Subtest colors (one per subtest)
+  // Subtest colors
+  static const violet     = Color(0xFF7C3AED);
+  static const teal       = Color(0xFF14B8A6);
+  static const coral      = Color(0xFFEF4444);
+  static const lime       = Color(0xFF22C55E);
+  static const amber      = Color(0xFFF59E0B);
+  static const blue       = Color(0xFF3B82F6);
+  static const pink       = Color(0xFFEC4899);
+
+  // Text
+  static const textPrimary   = Color(0xFFFFFFFF);
+  static const textSecondary = Color(0xFF9CA3AF);
+  static const textMuted     = Color(0xFF6B7280);
+
+  // Border
+  static const border     = Color(0xFF374151);
+  static const borderLight= Color(0xFF4B5563);
+
+  // Per-subtest (matches materi-snbt.json order)
   static const subtestColors = [
-    Color(0xFF2563EB), // Penalaran Matematika
-    Color(0xFFFF4D4D), // Literasi Indonesia
-    Color(0xFF22C55E), // Literasi Inggris
-    Color(0xFF8B5CF6), // Penalaran Umum
-    Color(0xFFFBBF24), // PBM
-    Color(0xFF14B8A6), // PKB
-  ];
-
-  // Pastel fills (lighter version for card backgrounds)
-  static const subtestPastel = [
-    Color(0xFFDBEAFE), // blue pastel
-    Color(0xFFFFE4E4), // coral pastel
-    Color(0xFFDCFCE7), // lime pastel
-    Color(0xFFEDE9FE), // purple pastel
-    Color(0xFFFEF3C7), // amber pastel
-    Color(0xFFCCFBF1), // teal pastel
+    Color(0xFF7C3AED), // PU
+    Color(0xFF14B8A6), // PPU
+    Color(0xFFEF4444), // PBM
+    Color(0xFF22C55E), // PK
+    Color(0xFFF59E0B), // LBI
+    Color(0xFF3B82F6), // LBE
+    Color(0xFFEC4899), // PM
   ];
 }
 
-// ─── Shadows (neobrutalism solid) ───────────────────────────────────────────
+// -- Shadows --
 class AppShadows {
-  static const solid = [
-    BoxShadow(color: AppColors.dark, offset: Offset(4, 4), blurRadius: 0),
+  static const card = [
+    BoxShadow(color: Color(0x40000000), offset: Offset(0, 4), blurRadius: 12),
   ];
-  static const solidSm = [
-    BoxShadow(color: AppColors.dark, offset: Offset(3, 3), blurRadius: 0),
+  static const elevated = [
+    BoxShadow(color: Color(0x60000000), offset: Offset(0, 8), blurRadius: 24),
   ];
-  static const solidLg = [
-    BoxShadow(color: AppColors.dark, offset: Offset(5, 5), blurRadius: 0),
-  ];
-  static BoxShadow solidColor(Color c, {double offset = 4}) =>
-      BoxShadow(color: c, offset: Offset(offset, offset), blurRadius: 0);
 }
 
-// ─── Border Radius ──────────────────────────────────────────────────────────
+// -- Border Radius --
 class AppRadius {
-  static const card   = BorderRadius.all(Radius.circular(20));
-  static const cardLg = BorderRadius.all(Radius.circular(28));
+  static const card   = BorderRadius.all(Radius.circular(16));
+  static const cardLg = BorderRadius.all(Radius.circular(24));
   static const pill   = BorderRadius.all(Radius.circular(999));
-  static const sm     = BorderRadius.all(Radius.circular(12));
-  static const xs     = BorderRadius.all(Radius.circular(8));
+  static const sm     = BorderRadius.all(Radius.circular(10));
+  static const xs     = BorderRadius.all(Radius.circular(6));
 }
 
-// ─── Helper ─────────────────────────────────────────────────────────────────
-TextStyle _n(double size, FontWeight w, [Color c = AppColors.dark]) =>
-    TextStyle(fontFamily: 'Nunito', fontSize: size, fontWeight: w, color: c,
-        letterSpacing: -0.3);
+// -- Theme --
+TextStyle _t(double size, FontWeight w, [Color c = AppColors.textPrimary]) =>
+    TextStyle(fontFamily: 'Nunito', fontSize: size, fontWeight: w, color: c);
 
-// ─── Theme ──────────────────────────────────────────────────────────────────
 ThemeData buildAppTheme() {
-  final base = ThemeData(
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: AppColors.blue,
-      surface: AppColors.cream,
-    ),
-    scaffoldBackgroundColor: AppColors.cream,
+  return ThemeData(
+    brightness: Brightness.dark,
+    scaffoldBackgroundColor: AppColors.bg,
     fontFamily: 'Nunito',
     useMaterial3: true,
-  );
-
-  return base.copyWith(
-    textTheme: base.textTheme.copyWith(
-      displayLarge:   _n(36, FontWeight.w900),
-      displayMedium:  _n(28, FontWeight.w900),
-      headlineLarge:  _n(24, FontWeight.w800),
-      headlineMedium: _n(20, FontWeight.w800),
-      titleLarge:     _n(17, FontWeight.w800),
-      titleMedium:    _n(15, FontWeight.w700),
-      bodyLarge:      _n(15, FontWeight.w600),
-      bodyMedium:     _n(13, FontWeight.w600),
-      labelLarge:     _n(13, FontWeight.w800),
-      labelSmall:     _n(10, FontWeight.w700, AppColors.hint),
+    colorScheme: const ColorScheme.dark(
+      primary: AppColors.primary,
+      secondary: AppColors.secondary,
+      surface: AppColors.surface,
+      error: AppColors.coral,
+    ),
+    textTheme: TextTheme(
+      displayLarge:   _t(32, FontWeight.w900),
+      displayMedium:  _t(26, FontWeight.w900),
+      headlineLarge:  _t(22, FontWeight.w800),
+      headlineMedium: _t(18, FontWeight.w800),
+      titleLarge:     _t(16, FontWeight.w800),
+      titleMedium:    _t(14, FontWeight.w700),
+      bodyLarge:      _t(14, FontWeight.w600),
+      bodyMedium:     _t(13, FontWeight.w500),
+      labelLarge:     _t(13, FontWeight.w800),
+      labelSmall:     _t(10, FontWeight.w600, AppColors.textMuted),
     ),
     appBarTheme: AppBarTheme(
-      backgroundColor: AppColors.cream,
+      backgroundColor: AppColors.bg,
       elevation: 0,
       scrolledUnderElevation: 0,
-      titleTextStyle: _n(20, FontWeight.w900),
-      iconTheme: const IconThemeData(color: AppColors.dark),
+      titleTextStyle: _t(18, FontWeight.w900, AppColors.accent),
+      iconTheme: const IconThemeData(color: AppColors.textPrimary),
+    ),
+    cardTheme: const CardThemeData(
+      color: AppColors.surface,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: AppRadius.card,
+        side: BorderSide(color: AppColors.border, width: 1),
+      ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.blue,
-        foregroundColor: AppColors.white,
-        textStyle: _n(15, FontWeight.w800, AppColors.white),
-        shape: const RoundedRectangleBorder(
-          borderRadius: AppRadius.pill,
-          side: BorderSide(color: AppColors.dark, width: 2.5),
-        ),
-        side: const BorderSide(color: AppColors.dark, width: 2.5),
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        textStyle: _t(15, FontWeight.w800, Colors.white),
+        shape: const RoundedRectangleBorder(borderRadius: AppRadius.pill),
         minimumSize: const Size(0, 52),
         elevation: 0,
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: AppColors.white,
+      fillColor: AppColors.surfaceAlt,
       border: OutlineInputBorder(
         borderRadius: AppRadius.card,
-        borderSide: const BorderSide(color: AppColors.dark, width: 2),
+        borderSide: const BorderSide(color: AppColors.border, width: 1),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: AppRadius.card,
-        borderSide: const BorderSide(color: AppColors.dark, width: 2),
+        borderSide: const BorderSide(color: AppColors.border, width: 1),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: AppRadius.card,
-        borderSide: const BorderSide(color: AppColors.blue, width: 2.5),
+        borderSide: const BorderSide(color: AppColors.accent, width: 1.5),
       ),
-      hintStyle: _n(13, FontWeight.w600, AppColors.hint),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+      hintStyle: _t(13, FontWeight.w500, AppColors.textMuted),
+      labelStyle: _t(12, FontWeight.w600, AppColors.textSecondary),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    ),
+    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+      backgroundColor: AppColors.surface,
+      selectedItemColor: AppColors.secondary,
+      unselectedItemColor: AppColors.textMuted,
+    ),
+    dividerColor: AppColors.border,
+    dialogTheme: const DialogThemeData(
+      backgroundColor: AppColors.surface,
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.card),
     ),
   );
 }

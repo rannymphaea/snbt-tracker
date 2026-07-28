@@ -19,7 +19,7 @@ class PengaturanScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer2<ProgressProvider, SettingsProvider>(
       builder: (ctx, prov, settings, _) => Scaffold(
-        backgroundColor: AppColors.cream,
+        backgroundColor: AppColors.bg,
         body: SafeArea(
           child: ListView(
             padding: const EdgeInsets.all(16),
@@ -29,12 +29,12 @@ class PengaturanScreen extends StatelessWidget {
                   style: Theme.of(context).textTheme.headlineLarge),
               const SizedBox(height: 20),
 
-              _buildSection(context, '🔔 Reminder', [
+              _buildSection(context, 'Reminder', [
                 _ReminderTile(settings: settings),
               ]),
               const SizedBox(height: 14),
 
-              _buildSection(context, '🔊 Suara', [
+              _buildSection(context, 'Suara', [
                 _SwitchTile(
                   label: 'Efek Suara Centang',
                   subtitle: 'Mainkan suara saat centang topik',
@@ -44,19 +44,19 @@ class PengaturanScreen extends StatelessWidget {
               ]),
               const SizedBox(height: 14),
 
-              _buildSection(context, '💾 Data', [
+              _buildSection(context, 'Data', [
                 _ActionTile(
                   icon: Icons.download_rounded,
                   label: 'Export Progres',
                   subtitle: 'Simpan progres sebagai file JSON',
-                  color: AppColors.blue,
+                  color: AppColors.accent,
                   onTap: () => _export(context),
                 ),
                 _ActionTile(
                   icon: Icons.upload_rounded,
                   label: 'Import Progres',
                   subtitle: 'Pulihkan progres dari file JSON',
-                  color: AppColors.lime,
+                  color: AppColors.primary,
                   onTap: () => _import(context, prov),
                 ),
                 _ActionTile(
@@ -72,7 +72,7 @@ class PengaturanScreen extends StatelessWidget {
               // App info
               AppCard(
                 small: true,
-                color: AppColors.cream,
+                color: AppColors.surface,
                 child: Column(
                   children: [
                     ClipRRect(
@@ -85,7 +85,7 @@ class PengaturanScreen extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text('v1.0.0 · Fully offline · No account needed',
                         style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600,
-                            color: AppColors.dark.withValues(alpha: 0.5))),
+                            color: AppColors.border.withValues(alpha: 0.5))),
                     const SizedBox(height: 10),
                     const Watermark(),
                   ],
@@ -107,7 +107,7 @@ class PengaturanScreen extends StatelessWidget {
           padding: const EdgeInsets.only(bottom: 8),
           child: Text(title,
               style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800,
-                  color: AppColors.hint)),
+                  color: AppColors.textMuted)),
         ),
         AppCard(
           padding: EdgeInsets.zero,
@@ -247,7 +247,7 @@ class PengaturanScreen extends StatelessWidget {
             const Text(
                 'Semua centang, catatan, dan riwayat streak akan dihapus. Materi tidak berubah.',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 13, color: AppColors.hint,
+                style: TextStyle(fontSize: 13, color: AppColors.textMuted,
                     fontWeight: FontWeight.w600)),
             const SizedBox(height: 20),
             Row(children: [
@@ -258,7 +258,7 @@ class PengaturanScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: AppRadius.pill,
-                    border: Border.all(color: AppColors.dark, width: 2),
+                    border: Border.all(color: AppColors.border, width: 2),
                   ),
                   alignment: Alignment.center,
                   child: const Text('Batal',
@@ -273,8 +273,8 @@ class PengaturanScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: AppColors.coral,
                     borderRadius: AppRadius.pill,
-                    border: Border.all(color: AppColors.dark, width: 2),
-                    boxShadow: AppShadows.solidSm,
+                    border: Border.all(color: AppColors.border, width: 2),
+                    boxShadow: AppShadows.card,
                   ),
                   alignment: Alignment.center,
                   child: const Text('Reset',
@@ -314,7 +314,7 @@ class _SwitchTile extends StatelessWidget {
             Text(label, style: const TextStyle(
                 fontSize: 14, fontWeight: FontWeight.w700)),
             Text(subtitle, style: const TextStyle(
-                fontSize: 12, color: AppColors.hint, fontWeight: FontWeight.w600)),
+                fontSize: 12, color: AppColors.textMuted, fontWeight: FontWeight.w600)),
           ],
         )),
         Switch(
@@ -364,7 +364,7 @@ class _ReminderTile extends StatelessWidget {
               const Text('Jam Pengingat Belajar',
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
               Text('Notifikasi harian jam ${settings.reminderTime}',
-                  style: const TextStyle(fontSize: 12, color: AppColors.hint,
+                  style: const TextStyle(fontSize: 12, color: AppColors.textMuted,
                       fontWeight: FontWeight.w600)),
             ],
           )),
@@ -373,7 +373,7 @@ class _ReminderTile extends StatelessWidget {
             decoration: BoxDecoration(
               color: AppColors.amber,
               borderRadius: AppRadius.pill,
-              border: Border.all(color: AppColors.dark, width: 2),
+              border: Border.all(color: AppColors.border, width: 2),
             ),
             child: Text(settings.reminderTime,
                 style: const TextStyle(
@@ -415,10 +415,10 @@ class _ActionTile extends StatelessWidget {
               Text(label, style: const TextStyle(
                   fontSize: 14, fontWeight: FontWeight.w700)),
               Text(subtitle, style: const TextStyle(
-                  fontSize: 12, color: AppColors.hint, fontWeight: FontWeight.w600)),
+                  fontSize: 12, color: AppColors.textMuted, fontWeight: FontWeight.w600)),
             ],
           )),
-          Icon(Icons.chevron_right_rounded, color: AppColors.hint),
+          Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
         ],
       ),
     ),

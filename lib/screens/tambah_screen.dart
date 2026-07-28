@@ -89,7 +89,7 @@ class _TambahScreenState extends State<TambahScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.cream,
+      backgroundColor: AppColors.surface,
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16),
@@ -98,7 +98,7 @@ class _TambahScreenState extends State<TambahScreen> {
             Text('Tambah Topik', style: Theme.of(context).textTheme.headlineLarge),
             Text('Tambah topik atau target belajar custom',
                 style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600,
-                    color: AppColors.dark.withValues(alpha: 0.5))),
+                    color: AppColors.border.withValues(alpha: 0.5))),
             const SizedBox(height: 20),
 
             AppCard(
@@ -134,13 +134,13 @@ class _TambahScreenState extends State<TambahScreen> {
                             decoration: BoxDecoration(
                               color: _useNewChapter ? AppColors.blue : Colors.white,
                               borderRadius: AppRadius.pill,
-                              border: Border.all(color: AppColors.dark, width: 2),
+                              border: Border.all(color: AppColors.border, width: 2),
                             ),
                             child: Text(
                               _useNewChapter ? 'Bab Baru ✓' : 'Bab Existing',
                               style: TextStyle(
                                 fontSize: 11, fontWeight: FontWeight.w700,
-                                color: _useNewChapter ? Colors.white : AppColors.dark,
+                                color: _useNewChapter ? Colors.white : AppColors.border,
                               ),
                             ),
                           ),
@@ -177,14 +177,14 @@ class _TambahScreenState extends State<TambahScreen> {
                       decoration: BoxDecoration(
                         color: AppColors.amber,
                         borderRadius: AppRadius.pill,
-                        border: Border.all(color: AppColors.dark, width: 2),
-                        boxShadow: AppShadows.solidSm,
+                        border: Border.all(color: AppColors.border, width: 2),
+                        boxShadow: AppShadows.card,
                       ),
                       alignment: Alignment.center,
                       child: _loading
                           ? const SizedBox(width: 20, height: 20,
                               child: CircularProgressIndicator(strokeWidth: 2,
-                                  color: AppColors.dark))
+                                  color: AppColors.border))
                           : const Text('+ Tambah Topik',
                               style: TextStyle(fontWeight: FontWeight.w800,
                                   fontSize: 15)),
@@ -224,7 +224,7 @@ class _TambahScreenState extends State<TambahScreen> {
               color: AppColors.blue.withValues(alpha: 0.05),
               child: const Text(
                 'Topik custom akan muncul di halaman subtes terkait. Tidak mengubah materi bawaan.',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.hint),
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textMuted),
               ),
             ),
             const SizedBox(height: 80),
@@ -250,18 +250,18 @@ class _TambahScreenState extends State<TambahScreen> {
     decoration: BoxDecoration(
       color: Colors.white,
       borderRadius: AppRadius.card,
-      border: Border.all(color: AppColors.dark, width: 2),
+      border: Border.all(color: AppColors.border, width: 2),
     ),
     child: DropdownButtonHideUnderline(
       child: DropdownButton<String>(
         value: value,
         hint: Text(hint, style: const TextStyle(
-            color: AppColors.hint, fontSize: 13, fontWeight: FontWeight.w600)),
+            color: AppColors.textMuted, fontSize: 13, fontWeight: FontWeight.w600)),
         items: items,
         onChanged: onChanged,
         isExpanded: true,
         style: const TextStyle(
-            color: AppColors.dark, fontWeight: FontWeight.w700,
+            color: AppColors.border, fontWeight: FontWeight.w700,
             fontSize: 13, fontFamily: 'Nunito'),
       ),
     ),

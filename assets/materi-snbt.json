@@ -1,178 +1,170 @@
 {
   "subtests": [
     {
-      "id": "penalaran-matematika",
-      "name": "Penalaran Matematika",
-      "icon": "📐",
-      "color": "#2E6FF2",
-      "chapters": [
-        {
-          "id": "pm-aljabar",
-          "name": "Aljabar",
-          "topics": [
-            { "id": "pm-001", "group": "Persamaan & Pertidaksamaan", "name": "Persamaan Linear Satu Variabel" },
-            { "id": "pm-002", "group": "Persamaan & Pertidaksamaan", "name": "Persamaan Linear Dua Variabel" },
-            { "id": "pm-003", "group": "Persamaan & Pertidaksamaan", "name": "Pertidaksamaan Linear" },
-            { "id": "pm-004", "group": "Persamaan & Pertidaksamaan", "name": "Persamaan Kuadrat" },
-            { "id": "pm-005", "group": "Fungsi", "name": "Fungsi Linear" },
-            { "id": "pm-006", "group": "Fungsi", "name": "Fungsi Kuadrat" },
-            { "id": "pm-007", "group": "Fungsi", "name": "Fungsi Eksponen & Logaritma" }
-          ]
-        },
-        {
-          "id": "pm-geometri",
-          "name": "Geometri",
-          "topics": [
-            { "id": "pm-008", "group": "Bangun Datar", "name": "Segitiga & Sifat-sifatnya" },
-            { "id": "pm-009", "group": "Bangun Datar", "name": "Segiempat & Lingkaran" },
-            { "id": "pm-010", "group": "Bangun Datar", "name": "Luas & Keliling" },
-            { "id": "pm-011", "group": "Bangun Ruang", "name": "Kubus, Balok, Tabung" },
-            { "id": "pm-012", "group": "Bangun Ruang", "name": "Kerucut, Bola, Limas" },
-            { "id": "pm-013", "group": "Transformasi", "name": "Translasi, Refleksi, Rotasi" }
-          ]
-        },
-        {
-          "id": "pm-statistika",
-          "name": "Statistika & Peluang",
-          "topics": [
-            { "id": "pm-014", "group": "Statistika", "name": "Mean, Median, Modus" },
-            { "id": "pm-015", "group": "Statistika", "name": "Simpangan & Varians" },
-            { "id": "pm-016", "group": "Statistika", "name": "Penyajian Data" },
-            { "id": "pm-017", "group": "Peluang", "name": "Peluang Kejadian" },
-            { "id": "pm-018", "group": "Peluang", "name": "Kombinatorika Dasar" }
-          ]
-        },
-        {
-          "id": "pm-aritmetika",
-          "name": "Aritmetika & Bilangan",
-          "topics": [
-            { "id": "pm-019", "group": "Bilangan", "name": "Bilangan Bulat & Pecahan" },
-            { "id": "pm-020", "group": "Bilangan", "name": "Rasio & Proporsi" },
-            { "id": "pm-021", "group": "Bilangan", "name": "Persen & Perbandingan" },
-            { "id": "pm-022", "group": "Barisan", "name": "Barisan Aritmetika" },
-            { "id": "pm-023", "group": "Barisan", "name": "Barisan Geometri" }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "literasi-bahasa-indonesia",
-      "name": "Literasi Bahasa Indonesia",
-      "icon": "📖",
-      "color": "#FF6B4A",
-      "chapters": [
-        {
-          "id": "lbi-pemahaman",
-          "name": "Pemahaman Bacaan",
-          "topics": [
-            { "id": "lbi-001", "group": "Ide Pokok", "name": "Menentukan Ide Pokok & Gagasan Utama" },
-            { "id": "lbi-002", "group": "Ide Pokok", "name": "Menyimpulkan Isi Teks" },
-            { "id": "lbi-003", "group": "Inferensi", "name": "Membuat Inferensi dari Teks" },
-            { "id": "lbi-004", "group": "Inferensi", "name": "Memahami Informasi Tersurat & Tersirat" }
-          ]
-        },
-        {
-          "id": "lbi-analisis",
-          "name": "Analisis Teks",
-          "topics": [
-            { "id": "lbi-005", "group": "Argumentasi", "name": "Mengidentifikasi Argumen & Bukti" },
-            { "id": "lbi-006", "group": "Argumentasi", "name": "Menilai Validitas Argumen" },
-            { "id": "lbi-007", "group": "Struktur", "name": "Struktur & Organisasi Teks" },
-            { "id": "lbi-008", "group": "Struktur", "name": "Hubungan Antarparagraf" }
-          ]
-        },
-        {
-          "id": "lbi-kebahasaan",
-          "name": "Kebahasaan",
-          "topics": [
-            { "id": "lbi-009", "group": "Kosakata", "name": "Makna Kata dalam Konteks" },
-            { "id": "lbi-010", "group": "Kosakata", "name": "Sinonim, Antonim, Homonim" },
-            { "id": "lbi-011", "group": "Gaya Bahasa", "name": "Majas & Gaya Bahasa" },
-            { "id": "lbi-012", "group": "Gaya Bahasa", "name": "Koherensi & Kohesi" }
-          ]
-        },
-        {
-          "id": "lbi-menulis",
-          "name": "Menulis",
-          "topics": [
-            { "id": "lbi-013", "group": "Kalimat Efektif", "name": "Kalimat Efektif & Baku" },
-            { "id": "lbi-014", "group": "Kalimat Efektif", "name": "Ejaan & Tanda Baca (PUEBI)" },
-            { "id": "lbi-015", "group": "Paragraf", "name": "Menyusun Paragraf Padu" }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "literasi-bahasa-inggris",
-      "name": "Literasi Bahasa Inggris",
-      "icon": "🌐",
-      "color": "#F5B942",
-      "chapters": [
-        {
-          "id": "lbe-reading",
-          "name": "Reading Comprehension",
-          "topics": [
-            { "id": "lbe-001", "group": "Main Idea", "name": "Identifying Main Idea & Theme" },
-            { "id": "lbe-002", "group": "Main Idea", "name": "Summarizing Passages" },
-            { "id": "lbe-003", "group": "Detail", "name": "Finding Specific Information" },
-            { "id": "lbe-004", "group": "Detail", "name": "Making Inferences" }
-          ]
-        },
-        {
-          "id": "lbe-vocabulary",
-          "name": "Vocabulary in Context",
-          "topics": [
-            { "id": "lbe-005", "group": "Word Meaning", "name": "Context Clues for Vocabulary" },
-            { "id": "lbe-006", "group": "Word Meaning", "name": "Synonyms & Antonyms" },
-            { "id": "lbe-007", "group": "Word Formation", "name": "Prefixes, Suffixes, Roots" }
-          ]
-        },
-        {
-          "id": "lbe-structure",
-          "name": "Text Structure & Analysis",
-          "topics": [
-            { "id": "lbe-008", "group": "Organization", "name": "Text Organization Patterns" },
-            { "id": "lbe-009", "group": "Organization", "name": "Author's Purpose & Tone" },
-            { "id": "lbe-010", "group": "Critical Reading", "name": "Evaluating Arguments" },
-            { "id": "lbe-011", "group": "Critical Reading", "name": "Fact vs Opinion" }
-          ]
-        }
-      ]
-    },
-    {
       "id": "penalaran-umum",
       "name": "Penalaran Umum",
-      "icon": "🧠",
-      "color": "#9B59B6",
+      "abbr": "PU",
+      "color": "#7C3AED",
       "chapters": [
         {
-          "id": "pu-logika",
-          "name": "Penalaran Logis",
+          "id": "pu-logika-dasar",
+          "name": "Logika Dasar dan Pemahaman Argumen",
           "topics": [
-            { "id": "pu-001", "group": "Logika", "name": "Silogisme & Logika Formal" },
-            { "id": "pu-002", "group": "Logika", "name": "Penalaran Deduktif" },
-            { "id": "pu-003", "group": "Logika", "name": "Penalaran Induktif" },
-            { "id": "pu-004", "group": "Logika", "name": "Analogi & Hubungan Logis" }
+            { "id": "pu-001", "group": "Hubungan Sebab-Akibat & Logika Kausal", "name": "Hubungan Sebab-Akibat" },
+            { "id": "pu-002", "group": "Bentuk Argumen & Penalaran Deduktif", "name": "Logika: Ponens, Tollens, dan Negasi" },
+            { "id": "pu-003", "group": "Bentuk Argumen & Penalaran Deduktif", "name": "Logika: Ekuivalensi, Silogisme, dan Biimplikasi" }
           ]
         },
         {
-          "id": "pu-analitis",
-          "name": "Penalaran Analitis",
+          "id": "pu-analisis-argumen",
+          "name": "Analisis Hubungan dan Validitas Argumen",
           "topics": [
-            { "id": "pu-005", "group": "Pola", "name": "Pola Bilangan & Deret" },
-            { "id": "pu-006", "group": "Pola", "name": "Pola Gambar & Spasial" },
-            { "id": "pu-007", "group": "Diagram", "name": "Diagram Venn & Pengelompokan" },
-            { "id": "pu-008", "group": "Diagram", "name": "Tabel & Grafik Logis" }
+            { "id": "pu-004", "group": "Kebenaran Pernyataan & Logika Proposisional", "name": "Pernyataan Pasti Benar & Mungkin Benar" },
+            { "id": "pu-005", "group": "Kebenaran Pernyataan & Logika Proposisional", "name": "Tabel Kebenaran" },
+            { "id": "pu-006", "group": "Evaluasi Argumen", "name": "Memperkuat & Memperlemah" },
+            { "id": "pu-007", "group": "Evaluasi Argumen", "name": "Kualitas Simpulan" },
+            { "id": "pu-008", "group": "Evaluasi Argumen", "name": "Perbandingan Argumen" }
           ]
         },
         {
-          "id": "pu-kritis",
-          "name": "Berpikir Kritis",
+          "id": "pu-logika-formal",
+          "name": "Logika Formal & Representasi Simbolik",
           "topics": [
-            { "id": "pu-009", "group": "Evaluasi", "name": "Mengidentifikasi Asumsi" },
-            { "id": "pu-010", "group": "Evaluasi", "name": "Mengevaluasi Kesimpulan" },
-            { "id": "pu-011", "group": "Evaluasi", "name": "Memperkuat & Memperlemah Argumen" },
-            { "id": "pu-012", "group": "Problem Solving", "name": "Penalaran Kondisional" }
+            { "id": "pu-009", "group": "Kuantor & Logika Kuantitatif", "name": "Diagram Venn" }
+          ]
+        },
+        {
+          "id": "pu-evaluasi",
+          "name": "Evaluasi Pemahaman",
+          "topics": [
+            { "id": "pu-010", "group": "Logika", "name": "Bahas Soal Inferensi & Interpretasi Teks" },
+            { "id": "pu-011", "group": "Logika", "name": "Logika Formal & Representasi Visual" }
+          ]
+        },
+        {
+          "id": "pu-angka",
+          "name": "Logika dan Dasar Operasi Angka",
+          "topics": [
+            { "id": "pu-012", "group": "Pola Barisan", "name": "Pola Barisan Angka dan Huruf" },
+            { "id": "pu-013", "group": "Pola Barisan", "name": "Pola Angka dalam Bangun" },
+            { "id": "pu-014", "group": "Dasar Hitung", "name": "Eksponen" },
+            { "id": "pu-015", "group": "Dasar Hitung", "name": "Aljabar" }
+          ]
+        },
+        {
+          "id": "pu-aritmetika-sosial",
+          "name": "Aritmetika Sosial",
+          "topics": [
+            { "id": "pu-016", "group": "Perbandingan", "name": "Perbandingan Senilai" },
+            { "id": "pu-017", "group": "Perbandingan", "name": "Perbandingan Berbalik Nilai" },
+            { "id": "pu-018", "group": "Implementasi Angka pada Kasus Ril", "name": "Diskon" },
+            { "id": "pu-019", "group": "Implementasi Angka pada Kasus Ril", "name": "Pajak" },
+            { "id": "pu-020", "group": "Implementasi Angka pada Kasus Ril", "name": "Untung Rugi" },
+            { "id": "pu-021", "group": "Implementasi Angka pada Kasus Ril", "name": "Jarak, Kecepatan, Waktu" }
+          ]
+        },
+        {
+          "id": "pu-data",
+          "name": "Olah Data dan Penyajiannya",
+          "topics": [
+            { "id": "pu-022", "group": "Analisis Grafik dan Informasi", "name": "Interpretasi Data: Membaca dan Memahami Data Visual" },
+            { "id": "pu-023", "group": "Analisis Grafik dan Informasi", "name": "Interpretasi Data: Menafsirkan dan Menyimpulkan dari Data" },
+            { "id": "pu-024", "group": "Statistika", "name": "Ukuran Penyebaran" },
+            { "id": "pu-025", "group": "Statistika", "name": "Ukuran Pemusatan" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pengetahuan-pemahaman-umum",
+      "name": "Pengetahuan dan Pemahaman Umum",
+      "abbr": "PPU",
+      "color": "#14B8A6",
+      "chapters": [
+        {
+          "id": "ppu-bahasa-makna",
+          "name": "Bahasa & Makna Kata",
+          "topics": [
+            { "id": "ppu-001", "group": "Makna Kata (Semantik)", "name": "Pengertian Makna Leksikal" },
+            { "id": "ppu-002", "group": "Makna Kata (Semantik)", "name": "Contoh dan Penggunaan Makna Leksikal" },
+            { "id": "ppu-003", "group": "Makna Kata (Semantik)", "name": "Pengertian Makna Gramatikal" },
+            { "id": "ppu-004", "group": "Makna Kata (Semantik)", "name": "Contoh dan Penggunaan Makna Gramatikal" },
+            { "id": "ppu-005", "group": "Makna Kata (Semantik)", "name": "Penggunaan Istilah / Kata" },
+            { "id": "ppu-006", "group": "Makna Kata (Semantik)", "name": "Perubahan Makna Kata" },
+            { "id": "ppu-007", "group": "Makna Kata (Semantik)", "name": "Makna Bertingkat / Hierarkis" }
+          ]
+        },
+        {
+          "id": "ppu-relasi-kata",
+          "name": "Relasi Kata & Bahasa",
+          "topics": [
+            { "id": "ppu-008", "group": "Sinonim & Antonim", "name": "Pengertian & Contoh Sinonim" },
+            { "id": "ppu-009", "group": "Sinonim & Antonim", "name": "Sinonim vs. Antonim" },
+            { "id": "ppu-010", "group": "Linguistik Terapan", "name": "Pengenalan Bahasa Panda" },
+            { "id": "ppu-011", "group": "Linguistik Terapan", "name": "Cara Mengerjakan Soal Bahasa Panda" }
+          ]
+        },
+        {
+          "id": "ppu-aplikasi-kalimat",
+          "name": "Pemahaman Aplikasi Kalimat",
+          "topics": [
+            { "id": "ppu-012", "group": "Aplikasi Kalimat", "name": "Semantik / Tata Makna" },
+            { "id": "ppu-013", "group": "Aplikasi Kalimat", "name": "Kalimat Majemuk" },
+            { "id": "ppu-014", "group": "Aplikasi Kalimat", "name": "Transformasi Kalimat" },
+            { "id": "ppu-015", "group": "Aplikasi Kalimat", "name": "Inti Kalimat" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pemahaman-membaca-menulis",
+      "name": "Pemahaman Membaca dan Menulis",
+      "abbr": "PBM",
+      "color": "#EF4444",
+      "chapters": [
+        {
+          "id": "pbm-ejaan",
+          "name": "Ejaan dan Tata Bahasa (EYD)",
+          "topics": [
+            { "id": "pbm-001", "group": "Penulisan Huruf Kapital", "name": "Mengenal & Penggunaan Huruf Kapital" },
+            { "id": "pbm-002", "group": "Penulisan Huruf Kapital", "name": "Nama Diri vs. Nama Jenis" },
+            { "id": "pbm-003", "group": "Penulisan Huruf Miring dan Tebal", "name": "Mengenal & Penggunaan Huruf Miring dan Tebal" },
+            { "id": "pbm-004", "group": "Tanda Baca", "name": "Mengenal & Penggunaan Tanda Baca Koma dan Lainnya" }
+          ]
+        },
+        {
+          "id": "pbm-morfologi",
+          "name": "Pembentukan Kata & Morfologi",
+          "topics": [
+            { "id": "pbm-005", "group": "Afiksasi dan Hukum KTSP", "name": "Pengertian, Jenis, dan Fungsi Afiksasi" },
+            { "id": "pbm-006", "group": "Afiksasi dan Hukum KTSP", "name": "Mengenal Pemaknaan Kata Imbuhan" },
+            { "id": "pbm-007", "group": "Afiksasi dan Hukum KTSP", "name": "Mengenal Hukum KTSP" },
+            { "id": "pbm-008", "group": "Reduplikasi dan Kata Majemuk", "name": "Pengertian & Macam-Macam Reduplikasi" },
+            { "id": "pbm-009", "group": "Reduplikasi dan Kata Majemuk", "name": "Pengertian, Ciri-Ciri, & Jenis Kata Majemuk" },
+            { "id": "pbm-010", "group": "Reduplikasi dan Kata Majemuk", "name": "Bentuk / Jenis Kata, Kata Baku dan Tidak Baku" }
+          ]
+        },
+        {
+          "id": "pbm-sintaksis",
+          "name": "Sintaksis & Struktur Kalimat",
+          "topics": [
+            { "id": "pbm-011", "group": "Kelas Kata Tugas", "name": "Konjungsi (Pengertian, Peran, dan Jenis)" },
+            { "id": "pbm-012", "group": "Kelas Kata Tugas", "name": "Preposisi (Pengertian, Fungsi, Aturan, dan Macam-Macam)" },
+            { "id": "pbm-013", "group": "Kelas Kata Tugas", "name": "Partikel dan Bentuk Terikat" },
+            { "id": "pbm-014", "group": "Pola Kalimat & Sintaksis", "name": "Unsur Penyusun Kalimat (S-P-O-Pel-K)" },
+            { "id": "pbm-015", "group": "Pola Kalimat & Sintaksis", "name": "Inti Kalimat (Unsur Wajib dan Takwajib)" },
+            { "id": "pbm-016", "group": "Pola Kalimat & Sintaksis", "name": "Kalimat Efektif & Tidak Efektif" },
+            { "id": "pbm-017", "group": "Pola Kalimat & Sintaksis", "name": "Kalimat Sumbang" }
+          ]
+        },
+        {
+          "id": "pbm-struktur-teks",
+          "name": "Struktur Teks & Paragraf",
+          "topics": [
+            { "id": "pbm-018", "group": "Tema, Topik, dan Judul", "name": "Pengertian, Fungsi, dan Perbedaan" },
+            { "id": "pbm-019", "group": "Paragraf & Keutuhan Teks", "name": "Gagasan Pokok (Ciri & Cara Menentukan)" },
+            { "id": "pbm-020", "group": "Paragraf & Keutuhan Teks", "name": "Teks Rumpang & Menyusun Teks Acak" },
+            { "id": "pbm-021", "group": "Paragraf & Keutuhan Teks", "name": "Transisi & Koherensi Antarparagraf / Antarkalimat" }
           ]
         }
       ]
@@ -180,102 +172,200 @@
     {
       "id": "pengetahuan-kuantitatif",
       "name": "Pengetahuan Kuantitatif",
-      "icon": "🔢",
-      "color": "#3BA55C",
+      "abbr": "PK",
+      "color": "#22C55E",
       "chapters": [
         {
-          "id": "pk-aritmetika",
-          "name": "Aritmetika Sosial",
+          "id": "pk-persamaan",
+          "name": "Persamaan dan Operasi Matematika",
           "topics": [
-            { "id": "pk-001", "group": "Hitung Dasar", "name": "Operasi Bilangan & Estimasi" },
-            { "id": "pk-002", "group": "Hitung Dasar", "name": "Pecahan, Desimal, Persen" },
-            { "id": "pk-003", "group": "Terapan", "name": "Untung, Rugi, Diskon" },
-            { "id": "pk-004", "group": "Terapan", "name": "Bunga & Cicilan" }
+            { "id": "pk-001", "group": "Operasi Dasar", "name": "Operasi Matematika Dasar (PEMDAS)" },
+            { "id": "pk-002", "group": "Operasi Dasar", "name": "Operasi Pecahan, Desimal, Persentase" },
+            { "id": "pk-003", "group": "Persamaan", "name": "Persamaan dan Sistem Persamaan Aljabar" },
+            { "id": "pk-004", "group": "Persamaan", "name": "Persamaan Kuadrat" }
           ]
         },
         {
-          "id": "pk-data",
-          "name": "Interpretasi Data",
+          "id": "pk-fungsi",
+          "name": "Fungsi Aljabar",
           "topics": [
-            { "id": "pk-005", "group": "Tabel & Grafik", "name": "Membaca Tabel Data" },
-            { "id": "pk-006", "group": "Tabel & Grafik", "name": "Membaca Diagram Batang & Lingkaran" },
-            { "id": "pk-007", "group": "Tabel & Grafik", "name": "Membaca Grafik Garis" },
-            { "id": "pk-008", "group": "Analisis", "name": "Perbandingan & Tren Data" }
+            { "id": "pk-005", "group": "Fungsi", "name": "Fungsi Linear" },
+            { "id": "pk-006", "group": "Fungsi", "name": "Fungsi Sepotong" },
+            { "id": "pk-007", "group": "Fungsi", "name": "Fungsi Kuadrat" },
+            { "id": "pk-008", "group": "Fungsi", "name": "Fungsi Komposisi dan Invers" },
+            { "id": "pk-009", "group": "Fungsi", "name": "Fungsi Khusus" }
           ]
         },
         {
-          "id": "pk-pengukuran",
-          "name": "Pengukuran & Satuan",
+          "id": "pk-geometri",
+          "name": "Geometri & Sistem Koordinat",
           "topics": [
-            { "id": "pk-009", "group": "Satuan", "name": "Konversi Satuan" },
-            { "id": "pk-010", "group": "Satuan", "name": "Satuan Waktu, Jarak, Kecepatan" },
-            { "id": "pk-011", "group": "Geometri Praktis", "name": "Perhitungan Luas & Volume Praktis" }
+            { "id": "pk-010", "group": "Geometri", "name": "Garis dan Sudut" },
+            { "id": "pk-011", "group": "Geometri", "name": "Konsep Luas dan Keliling" },
+            { "id": "pk-012", "group": "Geometri", "name": "Kesebangunan Berbasis Koordinat" }
+          ]
+        },
+        {
+          "id": "pk-trigo-stats",
+          "name": "Trigonometri, Statistika, & Barisan",
+          "topics": [
+            { "id": "pk-013", "group": "Trigonometri", "name": "Definisi Trigonometri & Sudut Berelasi" },
+            { "id": "pk-014", "group": "Statistika", "name": "Statistika Deskriptif" },
+            { "id": "pk-015", "group": "Barisan", "name": "Barisan dan Deret (Aritmetika & Geometri)" }
           ]
         }
       ]
     },
     {
-      "id": "pemahaman-bacaan-menulis",
-      "name": "Pemahaman Bacaan & Menulis",
-      "icon": "✍️",
-      "color": "#E74C3C",
+      "id": "literasi-bahasa-indonesia",
+      "name": "Literasi Bahasa Indonesia",
+      "abbr": "LBI",
+      "color": "#F59E0B",
       "chapters": [
         {
-          "id": "pbm-bacaan",
-          "name": "Pemahaman Bacaan Mendalam",
+          "id": "lbi-strategi-membaca",
+          "name": "Teks Bacaan & Strategi Membaca",
           "topics": [
-            { "id": "pbm-001", "group": "Teks Informasi", "name": "Menganalisis Teks Eksposisi" },
-            { "id": "pbm-002", "group": "Teks Informasi", "name": "Menganalisis Teks Argumentasi" },
-            { "id": "pbm-003", "group": "Teks Sastra", "name": "Memahami Teks Narasi" },
-            { "id": "pbm-004", "group": "Teks Sastra", "name": "Memahami Puisi & Drama" }
+            { "id": "lbi-001", "group": "Pemahaman Jenis Teks Bacaan", "name": "Pengertian & Langkah Membaca yang Benar" },
+            { "id": "lbi-002", "group": "Pemahaman Jenis Teks Bacaan", "name": "Jenis Teks Bacaan (Ragam Saintek dan Soshum)" },
+            { "id": "lbi-003", "group": "Pernyataan Teks & Teknik Membaca", "name": "Pernyataan Sesuai & Tidak Sesuai Teks" },
+            { "id": "lbi-004", "group": "Pernyataan Teks & Teknik Membaca", "name": "Pemahaman 5W + 1H" },
+            { "id": "lbi-005", "group": "Pernyataan Teks & Teknik Membaca", "name": "Metode Scanning & Skimming" }
           ]
         },
         {
-          "id": "pbm-menulis",
-          "name": "Kemampuan Menulis",
+          "id": "lbi-semantik-majas",
+          "name": "Semantik & Majas",
           "topics": [
-            { "id": "pbm-005", "group": "Penyuntingan", "name": "Memperbaiki Kalimat Tidak Efektif" },
-            { "id": "pbm-006", "group": "Penyuntingan", "name": "Mengoreksi Ejaan & Tanda Baca" },
-            { "id": "pbm-007", "group": "Komposisi", "name": "Melengkapi Paragraf Rumpang" },
-            { "id": "pbm-008", "group": "Komposisi", "name": "Menyusun Kalimat Topik" }
+            { "id": "lbi-006", "group": "Makna & Ungkapan dalam Teks", "name": "Semantik Kata, Frasa, dan Ungkapan" },
+            { "id": "lbi-007", "group": "Makna & Ungkapan dalam Teks", "name": "Susunan Kata dan Pembentukan Makna" },
+            { "id": "lbi-008", "group": "Majas (Gaya Bahasa)", "name": "Pengertian & Tujuan Majas" },
+            { "id": "lbi-009", "group": "Majas (Gaya Bahasa)", "name": "Jenis-Jenis Majas dalam Teks" }
+          ]
+        },
+        {
+          "id": "lbi-argumentatif",
+          "name": "Penalaran Argumentatif",
+          "topics": [
+            { "id": "lbi-010", "group": "Fakta vs. Opini", "name": "Pengertian & Perbedaan Fakta vs. Opini" },
+            { "id": "lbi-011", "group": "Fakta vs. Opini", "name": "Analisis & Implementasi Fakta/Opini dalam Teks Bacaan" }
           ]
         }
       ]
     },
     {
-      "id": "pengetahuan-pemahaman-umum",
-      "name": "Pengetahuan & Pemahaman Umum",
-      "icon": "🌍",
-      "color": "#1ABC9C",
+      "id": "literasi-bahasa-inggris",
+      "name": "Literasi Bahasa Inggris",
+      "abbr": "LBE",
+      "color": "#3B82F6",
       "chapters": [
         {
-          "id": "ppu-pancasila",
-          "name": "Pancasila & Kewarganegaraan",
+          "id": "lbe-structure-main",
+          "name": "Text Structure & Main Idea",
           "topics": [
-            { "id": "ppu-001", "group": "Pancasila", "name": "Nilai-nilai Pancasila" },
-            { "id": "ppu-002", "group": "Pancasila", "name": "UUD 1945 & Amandemen" },
-            { "id": "ppu-003", "group": "Kewarganegaraan", "name": "Hak & Kewajiban Warga Negara" },
-            { "id": "ppu-004", "group": "Kewarganegaraan", "name": "Demokrasi & Sistem Pemerintahan" }
+            { "id": "lbe-001", "group": "Text Structure", "name": "Theme, Topic, Title" },
+            { "id": "lbe-002", "group": "Main Idea", "name": "Stated Idea" },
+            { "id": "lbe-003", "group": "Main Idea", "name": "Implied Idea" },
+            { "id": "lbe-004", "group": "Main Idea", "name": "Paraphrasing" }
           ]
         },
         {
-          "id": "ppu-sosial",
-          "name": "Wawasan Kebangsaan & Sosial",
+          "id": "lbe-organization",
+          "name": "Organization Ideas & Conclusion",
           "topics": [
-            { "id": "ppu-005", "group": "Sejarah", "name": "Sejarah Kemerdekaan Indonesia" },
-            { "id": "ppu-006", "group": "Sejarah", "name": "Tokoh-tokoh Nasional" },
-            { "id": "ppu-007", "group": "Sosial Budaya", "name": "Keberagaman Budaya Indonesia" },
-            { "id": "ppu-008", "group": "Sosial Budaya", "name": "Isu Sosial Kontemporer" }
+            { "id": "lbe-005", "group": "Organization Ideas", "name": "Predicting Ideas" },
+            { "id": "lbe-006", "group": "Organization Ideas", "name": "Summarizing Ideas" },
+            { "id": "lbe-007", "group": "Organization Ideas", "name": "Organizing Ideas" },
+            { "id": "lbe-008", "group": "Conclusion", "name": "Stated Conclusion" },
+            { "id": "lbe-009", "group": "Conclusion", "name": "Implied Conclusion" }
           ]
         },
         {
-          "id": "ppu-sains",
-          "name": "Literasi Sains Dasar",
+          "id": "lbe-analysis",
+          "name": "Text Analysis & Relationships",
           "topics": [
-            { "id": "ppu-009", "group": "IPA", "name": "Konsep Dasar Fisika" },
-            { "id": "ppu-010", "group": "IPA", "name": "Konsep Dasar Kimia" },
-            { "id": "ppu-011", "group": "IPA", "name": "Konsep Dasar Biologi" },
-            { "id": "ppu-012", "group": "Lingkungan", "name": "Isu Lingkungan & Keberlanjutan" }
+            { "id": "lbe-010", "group": "Relation Between Texts", "name": "Comparison" },
+            { "id": "lbe-011", "group": "Relation Between Texts", "name": "Support" },
+            { "id": "lbe-012", "group": "Relation Between Texts", "name": "Cause and Effect" },
+            { "id": "lbe-013", "group": "Relation Between Texts", "name": "Elaboration" },
+            { "id": "lbe-014", "group": "Relation Between Texts", "name": "Contrast" },
+            { "id": "lbe-015", "group": "Author's Related Question", "name": "Author's Tone" },
+            { "id": "lbe-016", "group": "Author's Related Question", "name": "Author's Purpose" },
+            { "id": "lbe-017", "group": "Author's Related Question", "name": "Author's Opinion / Writer's Motive" }
+          ]
+        },
+        {
+          "id": "lbe-statements",
+          "name": "Statements, Meaning, & Reference",
+          "topics": [
+            { "id": "lbe-018", "group": "Statements", "name": "True Statement" },
+            { "id": "lbe-019", "group": "Statements", "name": "False Statement" },
+            { "id": "lbe-020", "group": "Statements", "name": "Opinion Statement" },
+            { "id": "lbe-021", "group": "Statements", "name": "Factual Statement" },
+            { "id": "lbe-022", "group": "Words and Meaning", "name": "Equal Meaning / Contextual" },
+            { "id": "lbe-023", "group": "Words and Meaning", "name": "Inequal Meaning / Synonym & Antonym" },
+            { "id": "lbe-024", "group": "Reference", "name": "Advanced Pronoun / Reference and Inference" }
+          ]
+        },
+        {
+          "id": "lbe-detailed",
+          "name": "Finding Detailed Information",
+          "topics": [
+            { "id": "lbe-025", "group": "Finding Info", "name": "Finding Why, Who, What, When, How" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "penalaran-matematika",
+      "name": "Penalaran Matematika",
+      "abbr": "PM",
+      "color": "#EC4899",
+      "chapters": [
+        {
+          "id": "pm-geometri-2d3d",
+          "name": "Geometri Dua & Tiga Dimensi",
+          "topics": [
+            { "id": "pm-001", "group": "Geometri 2D", "name": "Sudut / Hubungan Antarsudut" },
+            { "id": "pm-002", "group": "Geometri 2D", "name": "Bangun Datar" },
+            { "id": "pm-003", "group": "Geometri 2D", "name": "Keliling / Luas" },
+            { "id": "pm-004", "group": "Geometri 2D", "name": "Teorema Pythagoras" },
+            { "id": "pm-005", "group": "Geometri 2D", "name": "Trigonometri Segitiga" },
+            { "id": "pm-006", "group": "Geometri 2D", "name": "Aturan Sinus / Cosinus" },
+            { "id": "pm-007", "group": "Geometri 2D", "name": "Kesebangunan" },
+            { "id": "pm-008", "group": "Geometri 3D", "name": "Bangun Ruang" },
+            { "id": "pm-009", "group": "Geometri 3D", "name": "Volume / Luas Permukaan" },
+            { "id": "pm-010", "group": "Geometri 3D", "name": "Jarak Titik ke Titik / Garis / Bidang" }
+          ]
+        },
+        {
+          "id": "pm-pemodelan",
+          "name": "Pemodelan Fungsi & Persamaan",
+          "topics": [
+            { "id": "pm-011", "group": "Pemodelan", "name": "Konsep Fungsi" },
+            { "id": "pm-012", "group": "Pemodelan", "name": "Pemodelan Masalah Geometris & Persamaan" },
+            { "id": "pm-013", "group": "Pemodelan", "name": "Sistem Persamaan (SPLDV/SPLTV, Flowchart)" }
+          ]
+        },
+        {
+          "id": "pm-data-statistika",
+          "name": "Analisis Data & Statistika",
+          "topics": [
+            { "id": "pm-014", "group": "Statistika", "name": "Ukuran Pemusatan & Penyebaran Data" },
+            { "id": "pm-015", "group": "Statistika", "name": "Diagram Batang, Garis, dan Lingkaran" }
+          ]
+        },
+        {
+          "id": "pm-kombinatorika",
+          "name": "Kombinatorika, Peluang, & Keuangan",
+          "topics": [
+            { "id": "pm-016", "group": "Peluang & Cacah", "name": "Filling Slot" },
+            { "id": "pm-017", "group": "Peluang & Cacah", "name": "Permutasi (Siklis / Unsur Sama)" },
+            { "id": "pm-018", "group": "Peluang & Cacah", "name": "Kombinasi" },
+            { "id": "pm-019", "group": "Peluang & Cacah", "name": "Peluang" },
+            { "id": "pm-020", "group": "Barisan & Deret", "name": "Aritmetika (Tingkat 1 & Bertingkat)" },
+            { "id": "pm-021", "group": "Barisan & Deret", "name": "Geometri" },
+            { "id": "pm-022", "group": "Barisan & Deret", "name": "Bunga Tunggal" }
           ]
         }
       ]

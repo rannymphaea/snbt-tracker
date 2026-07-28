@@ -1,145 +1,335 @@
-// lib/screens/dashboard_screen.dart
+// lib/screens/dashboard_screen.dart -- Home tab: Tree + XP + Check-in
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:fl_chart/fl_chart.dart';
-import 'package:intl/intl.dart';
 import '../providers/progress_provider.dart';
+import '../data/repository.dart';
+import '../models/models.dart';
 import '../utils/app_theme.dart';
-import '../widgets/ring_progress.dart';
 import '../widgets/tree_painter.dart';
-import '../widgets/app_card.dart';
-import '../widgets/animated_checkbox.dart';
+import 'pengaturan_screen.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
   @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen>
+    with TickerProviderStateMixin {
+  // XP state
+  UserXp _xp = const UserXp();
+
+  // Check-in form
+  List<SubtestModel> _subtests = [];
+  List<ChapterModel> _chapters = [];
+  List<TopicModel> _topics = [];
+  String? _selectedSubtestId;
+  String? _selectedChapterId;
+  String? _selectedTopicId;
+  final _durationCtrl = TextEditingController(text: '30');
+  int _todayMinutes = 0;
+  int _streak = 0;
+
+  // Animations
+  late AnimationController _treeShakeCtrl;
+  late Animation<double> _treeShakeAnim;
+  late AnimationController _xpPulseCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _treeShakeCtrl = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 500));
+    _treeShakeAnim = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 0, end: 0.04), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: 0.04, end: -0.03), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: -0.03, end: 0.02), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: 0.02, end: 0), weight: 1),
+    ]).animate(CurvedAnimation(parent: _treeShakeCtrl, curve: Curves.easeInOut));
+
+    _xpPulseCtrl = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 300));
+
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    _xp = await XpRepo.get();
+    _subtests = await SubtestRepo.getAll();
+    _todayMinutes = await CheckinRepo.getTodayMinutes();
+    _streak = await ActivityRepo.getStreak();
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _onSubtestChanged(String? id) async {
+    _selectedSubtestId = id;
+    _selectedChapterId = null;
+    _selectedTopicId = null;
+    _chapters = id != null ? await ChapterRepo.getBySubtest(id) : [];
+    _topics = [];
+    setState(() {});
+  }
+
+  Future<void> _onChapterChanged(String? id) async {
+    _selectedChapterId = id;
+    _selectedTopicId = null;
+    _topics = id != null ? await TopicRepo.getByChapter(id) : [];
+    setState(() {});
+  }
+
+  Future<void> _onStartFocus() async {
+    if (_selectedSubtestId == null || _selectedChapterId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Pilih bab dan sub-bab terlebih dahulu')),
+      );
+      return;
+    }
+
+    final duration = int.tryParse(_durationCtrl.text) ?? 30;
+    if (duration <= 0) return;
+
+    // Save check-in
+    await CheckinRepo.add(
+      subtestId: _selectedSubtestId!,
+      chapterId: _selectedChapterId!,
+      topicId: _selectedTopicId,
+      durationMinutes: duration,
+    );
+
+    // Add XP (optimistic)
+    _xp = await XpRepo.addFromCheckin(duration);
+    _todayMinutes = await CheckinRepo.getTodayMinutes();
+    _streak = await ActivityRepo.getStreak();
+
+    // Trigger animations
+    _xpPulseCtrl.forward().then((_) => _xpPulseCtrl.reverse());
+
+    // Reset form
+    _selectedSubtestId = null;
+    _selectedChapterId = null;
+    _selectedTopicId = null;
+    _chapters = [];
+    _topics = [];
+    _durationCtrl.text = '30';
+
+    // Reload provider
+    if (mounted) {
+      context.read<ProgressProvider>().init();
+      setState(() {});
+    }
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Sesi belajar tercatat! +${duration * 2} XP'),
+          backgroundColor: AppColors.primary,
+        ),
+      );
+    }
+  }
+
+  void _onTreeTap() {
+    _treeShakeCtrl.forward(from: 0);
+  }
+
+  @override
+  void dispose() {
+    _treeShakeCtrl.dispose();
+    _xpPulseCtrl.dispose();
+    _durationCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Consumer<ProgressProvider>(
-      builder: (context, prov, _) {
-        if (prov.isLoading) {
-          return const Scaffold(
-            backgroundColor: AppColors.cream,
-            body: Center(child: CircularProgressIndicator(color: AppColors.blue)),
-          );
-        }
-        return Scaffold(
-          backgroundColor: AppColors.cream,
-          body: SafeArea(
-            child: RefreshIndicator(
-              onRefresh: () => prov.init(),
-              color: AppColors.blue,
-              child: ListView(
-                padding: EdgeInsets.zero,
-                children: [
-                  _buildHero(context, prov),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 16),
-                        _buildSubtestGrid(context, prov),
-                        const SizedBox(height: 16),
-                        _buildStreakCard(prov),
-                        const SizedBox(height: 16),
-                        _buildChart(prov),
-                        const SizedBox(height: 16),
-                        _buildTreeSection(prov),
-                        const SizedBox(height: 20),
-                        const Watermark(),
-                        const SizedBox(height: 80),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+    return Scaffold(
+      backgroundColor: AppColors.bg,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeader(),
+              const SizedBox(height: 16),
+              _buildTreeCard(),
+              const SizedBox(height: 12),
+              _buildXpBar(),
+              const SizedBox(height: 20),
+              _buildCheckinCard(),
+              const SizedBox(height: 24),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
-  // ── HERO HEADER (blue card, large progress) ──────────────────────────────
-  Widget _buildHero(BuildContext context, ProgressProvider prov) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: 1),
-      duration: const Duration(milliseconds: 600),
-      curve: Curves.easeOut,
-      builder: (_, t, child) =>
-          Opacity(opacity: t, child: Transform.translate(offset: Offset(0, 20 * (1 - t)), child: child)),
-      child: Container(
-        margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-        padding: const EdgeInsets.all(22),
-        decoration: BoxDecoration(
-          color: AppColors.blue,
-          borderRadius: AppRadius.cardLg,
-          border: Border.all(color: AppColors.dark, width: 2.5),
-          boxShadow: AppShadows.solidLg,
+  Widget _buildHeader() {
+    return Row(
+      children: [
+        Text(
+          'SNBT TRACKER',
+          style: TextStyle(
+            fontFamily: 'Nunito',
+            fontSize: 18,
+            fontWeight: FontWeight.w900,
+            color: AppColors.accent,
+            letterSpacing: 1,
+          ),
         ),
-        child: Row(
+        const Spacer(),
+        // Streak badge
+        if (_streak > 0)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: AppColors.secondary.withValues(alpha: 0.15),
+              borderRadius: AppRadius.pill,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.local_fire_department, size: 14, color: AppColors.secondary),
+                const SizedBox(width: 4),
+                Text(
+                  '$_streak hari',
+                  style: TextStyle(
+                    fontFamily: 'Nunito',
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.secondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        const SizedBox(width: 8),
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => PengaturanScreen()),
+            );
+          },
+          child: const Icon(Icons.settings_rounded, color: AppColors.textSecondary, size: 22),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTreeCard() {
+    return GestureDetector(
+      onTap: _onTreeTap,
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: AppRadius.card,
+          border: Border.all(color: AppColors.border, width: 1),
+        ),
+        child: Column(
           children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            const SizedBox(height: 12),
+            Text(
+              'Ayo, siram pohonmu hari ini!',
+              style: TextStyle(
+                fontFamily: 'Nunito',
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: 8),
+            AnimatedBuilder(
+              animation: _treeShakeAnim,
+              builder: (_, child) => Transform.rotate(
+                angle: _treeShakeAnim.value,
+                child: child,
+              ),
+              child: SizedBox(
+                height: 180,
+                child: CustomPaint(
+                  size: const Size(200, 180),
+                  painter: TreeMascotPainter(
+                    growthLevel: _xp.level.clamp(1, 20).toDouble(),
+                  ),
+                ),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
-                    'Halo, pejuang! 👋',
-                    style: TextStyle(
-                      fontFamily: 'Nunito',
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white70,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'SNBT 2027',
-                    style: TextStyle(
-                      fontFamily: 'Nunito',
-                      fontSize: 30,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
-                      height: 1.1,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      borderRadius: AppRadius.pill,
-                    ),
-                    child: Text(
-                      _getDailyQuote(),
-                      style: const TextStyle(
-                        fontFamily: 'Nunito',
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
+                  _statBadge('LV. ${_xp.level}', AppColors.accent),
+                  const SizedBox(width: 12),
+                  _statBadge('${_xp.totalXp} / ${_xp.xpForNextLevel} XP', AppColors.secondary),
                 ],
               ),
             ),
-            const SizedBox(width: 16),
-            // Big progress ring on white bg
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.15),
-                borderRadius: AppRadius.card,
-                border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 2),
-              ),
-              child: RingProgress(
-                progress: prov.totalProgress,
-                size: 82,
-                strokeWidth: 8,
-                color: AppColors.amber,
-                fontSize: 15,
-                trackColor: Colors.white24,
-                textColor: Colors.white,
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _statBadge(String text, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        borderRadius: AppRadius.pill,
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontFamily: 'Nunito',
+          fontSize: 12,
+          fontWeight: FontWeight.w800,
+          color: color,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildXpBar() {
+    return ScaleTransition(
+      scale: Tween(begin: 1.0, end: 1.05)
+          .animate(CurvedAnimation(parent: _xpPulseCtrl, curve: Curves.easeOut)),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: AppRadius.sm,
+          border: Border.all(color: AppColors.border, width: 1),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  'Belajar hari ini: ${(_todayMinutes / 60).toStringAsFixed(1)} jam',
+                  style: TextStyle(
+                    fontFamily: 'Nunito',
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            ClipRRect(
+              borderRadius: AppRadius.pill,
+              child: LinearProgressIndicator(
+                value: _xp.progress.clamp(0, 1),
+                minHeight: 8,
+                backgroundColor: AppColors.surfaceAlt,
+                valueColor: const AlwaysStoppedAnimation(AppColors.secondary),
               ),
             ),
           ],
@@ -148,362 +338,204 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  String _getDailyQuote() {
-    final quotes = [
-      'Konsistensi mengalahkan intensitas.',
-      'Sedikit demi sedikit, lama-lama jadi bukit.',
-      'Setiap langkah kecil = lebih dekat.',
-      'Fokus, disiplin, percaya dirimu!',
-      'Hari ini lebih baik dari kemarin.',
-      'Prosesmu sedang berjalan. Percayalah.',
-      'Belajar setiap hari, sekecil apapun.',
-    ];
-    return quotes[DateTime.now().weekday % quotes.length];
-  }
-
-  // ── SUBTEST GRID (colorful cards, not just rings) ────────────────────────
-  Widget _buildSubtestGrid(BuildContext context, ProgressProvider prov) {
-    final colors  = AppColors.subtestColors;
-    final pastels = AppColors.subtestPastel;
-
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: 1),
-      duration: const Duration(milliseconds: 700),
-      curve: const Interval(0.1, 1.0, curve: Curves.easeOut),
-      builder: (_, t, child) => Opacity(opacity: t, child: child),
+  Widget _buildCheckinCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.secondary.withValues(alpha: 0.08),
+        borderRadius: AppRadius.card,
+        border: Border.all(color: AppColors.secondary.withValues(alpha: 0.3), width: 1),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(title: 'Subtes'),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              mainAxisExtent: 96,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
+          Text(
+            'Mulai Sesi Belajar',
+            style: TextStyle(
+              fontFamily: 'Nunito',
+              fontSize: 16,
+              fontWeight: FontWeight.w900,
+              color: AppColors.secondary,
             ),
-            itemCount: prov.subtests.length,
-            itemBuilder: (_, i) {
-              final sub   = prov.subtests[i];
-              final color  = colors[i % colors.length];
-              final pastel = pastels[i % pastels.length];
-              return FutureBuilder<double>(
-                future: prov.subtestProgress(sub.id),
-                builder: (_, snap) {
-                  final prog = snap.data ?? 0;
-                  return TapScale(
-                    onTap: () => Navigator.pushNamed(context, '/subtes', arguments: sub.id),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: pastel,
-                        borderRadius: AppRadius.card,
-                        border: Border.all(color: AppColors.dark, width: 2.5),
-                        boxShadow: [AppShadows.solidColor(color, offset: 4)],
-                      ),
-                      child: Row(
-                        children: [
-                          RingProgress(
-                            progress: prog,
-                            size: 50,
-                            strokeWidth: 5,
-                            color: color,
-                            fontSize: 11,
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  sub.abbr,
-                                  style: TextStyle(
-                                    fontFamily: 'Nunito',
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w900,
-                                    color: color,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  '${(prog * 100).round()}% selesai',
-                                  style: const TextStyle(
-                                    fontFamily: 'Nunito',
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.hint,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Icon(Icons.chevron_right_rounded, size: 16, color: color),
-                        ],
+          ),
+          const SizedBox(height: 14),
+
+          // Bab dropdown
+          _label('PILIH BAB'),
+          const SizedBox(height: 6),
+          _dropdown<String>(
+            hint: '-- Pilih Bab --',
+            value: _selectedSubtestId,
+            items: _subtests.map((s) => DropdownMenuItem(
+              value: s.id, child: Text(s.name),
+            )).toList(),
+            onChanged: _onSubtestChanged,
+          ),
+          const SizedBox(height: 12),
+
+          // Sub-bab dropdown (chapters)
+          _label('PILIH SUB-BAB'),
+          const SizedBox(height: 6),
+          _dropdown<String>(
+            hint: '-- Pilih Sub-bab --',
+            value: _selectedChapterId,
+            items: _chapters.map((c) => DropdownMenuItem(
+              value: c.id, child: Text(c.name),
+            )).toList(),
+            onChanged: _onChapterChanged,
+          ),
+          const SizedBox(height: 12),
+
+          // Topic dropdown (optional, more granular)
+          if (_topics.isNotEmpty) ...[
+            _label('PILIH TOPIK (OPSIONAL)'),
+            const SizedBox(height: 6),
+            _dropdown<String>(
+              hint: '-- Pilih Topik --',
+              value: _selectedTopicId,
+              items: _topics.map((t) => DropdownMenuItem(
+                value: t.id, child: Text(t.name, overflow: TextOverflow.ellipsis),
+              )).toList(),
+              onChanged: (v) => setState(() => _selectedTopicId = v),
+            ),
+            const SizedBox(height: 12),
+          ],
+
+          // Duration
+          _label('DURASI (MENIT)'),
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              ...[15, 30, 45, 60].map((m) => Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: GestureDetector(
+                  onTap: () => setState(() => _durationCtrl.text = '$m'),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: _durationCtrl.text == '$m'
+                          ? AppColors.secondary
+                          : AppColors.surfaceAlt,
+                      borderRadius: AppRadius.pill,
+                      border: Border.all(
+                        color: _durationCtrl.text == '$m'
+                            ? AppColors.secondary
+                            : AppColors.border,
+                        width: 1,
                       ),
                     ),
-                  );
-                },
-              );
-            },
+                    child: Text(
+                      '$m',
+                      style: TextStyle(
+                        fontFamily: 'Nunito',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        color: _durationCtrl.text == '$m'
+                            ? AppColors.bg
+                            : AppColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                ),
+              )),
+              const SizedBox(width: 4),
+              Expanded(
+                child: SizedBox(
+                  height: 36,
+                  child: TextField(
+                    controller: _durationCtrl,
+                    keyboardType: TextInputType.number,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontFamily: 'Nunito',
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    ),
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                      hintText: 'Lainnya',
+                      hintStyle: TextStyle(
+                        fontSize: 11,
+                        color: AppColors.textMuted,
+                      ),
+                    ),
+                    onChanged: (_) => setState(() {}),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+
+          // START FOCUS button
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: ElevatedButton.icon(
+              onPressed: _onStartFocus,
+              icon: const Icon(Icons.play_arrow_rounded, size: 20),
+              label: const Text('START FOCUS'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                textStyle: const TextStyle(
+                  fontFamily: 'Nunito',
+                  fontSize: 15,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 0.5,
+                ),
+                shape: RoundedRectangleBorder(borderRadius: AppRadius.pill),
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
-  // ── STREAK CARD ──────────────────────────────────────────────────────────
-  Widget _buildStreakCard(ProgressProvider prov) {
-    final streak = prov.streak;
-    final color = streak >= 7 ? AppColors.coral
-        : streak >= 3 ? AppColors.amber
-        : AppColors.lime;
-
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: 1),
-      duration: const Duration(milliseconds: 500),
-      curve: const Interval(0.2, 1.0, curve: Curves.easeOut),
-      builder: (_, t, child) => Opacity(
-        opacity: t,
-        child: Transform.translate(offset: Offset(-20 * (1 - t), 0), child: child),
-      ),
-      child: AppCard(
-        color: color.withValues(alpha: 0.12),
-        shadowColor: color,
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-        child: Row(
-          children: [
-            _StreakIcon(color: color, isHot: streak >= 3),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                    textBaseline: TextBaseline.alphabetic,
-                    children: [
-                      AnimatedCount(
-                        value: streak,
-                        style: TextStyle(
-                          fontFamily: 'Nunito',
-                          fontSize: 28,
-                          fontWeight: FontWeight.w900,
-                          color: color,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      const Text(
-                        'hari streak',
-                        style: TextStyle(
-                          fontFamily: 'Nunito',
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.hint,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Text(
-                    streak == 0 ? 'Mulai streak-mu hari ini!'
-                        : streak >= 14 ? '🔥 LUAR BIASA! Tak terbendung!'
-                        : streak >= 7 ? '🔥 Seminggu full! Hebat!'
-                        : streak >= 3 ? 'Pertahankan terus!'
-                        : 'Yuk tambah hari ini!',
-                    style: TextStyle(
-                      fontFamily: 'Nunito',
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.dark.withValues(alpha: 0.55),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+  Widget _label(String text) {
+    return Text(
+      text,
+      style: TextStyle(
+        fontFamily: 'Nunito',
+        fontSize: 11,
+        fontWeight: FontWeight.w700,
+        color: AppColors.textMuted,
+        letterSpacing: 0.5,
       ),
     );
   }
 
-  // ── ACTIVITY CHART ───────────────────────────────────────────────────────
-  Widget _buildChart(ProgressProvider prov) {
-    final data = prov.last7Days;
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: 1),
-      duration: const Duration(milliseconds: 700),
-      curve: const Interval(0.3, 1.0, curve: Curves.easeOut),
-      builder: (_, t, child) => Opacity(opacity: t, child: child),
-      child: AppCard(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SectionHeader(title: 'Aktivitas 7 Hari'),
-            SizedBox(
-              height: 130,
-              child: LineChart(
-                LineChartData(
-                  gridData: FlGridData(show: false),
-                  borderData: FlBorderData(show: false),
-                  titlesData: FlTitlesData(
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        getTitlesWidget: (val, _) {
-                          final i = val.toInt();
-                          if (i < 0 || i >= data.length) return const SizedBox();
-                          final d = DateTime.parse(data[i].date);
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 4),
-                            child: Text(
-                              DateFormat('E', 'id').format(d),
-                              style: const TextStyle(
-                                fontFamily: 'Nunito',
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.hint,
-                              ),
-                            ),
-                          );
-                        },
-                        reservedSize: 24,
-                      ),
-                    ),
-                    leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  ),
-                  lineBarsData: [
-                    LineChartBarData(
-                      spots: data.asMap().entries.map((e) =>
-                          FlSpot(e.key.toDouble(), e.value.checksCount.toDouble())).toList(),
-                      isCurved: true,
-                      color: AppColors.blue,
-                      barWidth: 3.5,
-                      dotData: FlDotData(
-                        getDotPainter: (_, __, ___, ____) => FlDotCirclePainter(
-                          radius: 5,
-                          color: AppColors.blue,
-                          strokeColor: AppColors.white,
-                          strokeWidth: 2,
-                        ),
-                      ),
-                      belowBarData: BarAreaData(
-                        show: true,
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            AppColors.blue.withValues(alpha: 0.25),
-                            AppColors.blue.withValues(alpha: 0.02),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                  lineTouchData: LineTouchData(
-                    touchTooltipData: LineTouchTooltipData(
-                      getTooltipColor: (_) => AppColors.dark,
-                      getTooltipItems: (spots) => spots.map((s) => LineTooltipItem(
-                        '${s.y.toInt()} ✓',
-                        const TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.w800, fontSize: 12),
-                      )).toList(),
-                    ),
-                  ),
-                ),
-                duration: const Duration(milliseconds: 800),
-                curve: Curves.easeOut,
-              ),
-            ),
-          ],
-        ),
+  Widget _dropdown<T>({
+    required String hint,
+    required T? value,
+    required List<DropdownMenuItem<T>> items,
+    required ValueChanged<T?> onChanged,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceAlt,
+        borderRadius: AppRadius.sm,
+        border: Border.all(color: AppColors.border, width: 1),
       ),
-    );
-  }
-
-  // ── TREE MASCOT ──────────────────────────────────────────────────────────
-  Widget _buildTreeSection(ProgressProvider prov) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: 1),
-      duration: const Duration(milliseconds: 700),
-      curve: Curves.easeOut,
-      builder: (_, t, child) => Opacity(opacity: t, child: child),
-      child: AppCard(
-        color: AppColors.lime.withValues(alpha: 0.08),
-        shadowColor: AppColors.lime,
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            const SectionHeader(title: '🌳 Pohon Belajarmu'),
-            SizedBox(
-              height: 160,
-              child: TreeMascotWidget(progress: prov.totalProgress),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ── Streak icon (animated pulsing) ────────────────────────────────────────
-class _StreakIcon extends StatefulWidget {
-  final Color color;
-  final bool isHot;
-  const _StreakIcon({required this.color, required this.isHot});
-
-  @override
-  State<_StreakIcon> createState() => _StreakIconState();
-}
-
-class _StreakIconState extends State<_StreakIcon> with SingleTickerProviderStateMixin {
-  late AnimationController _ctrl;
-
-  @override
-  void initState() {
-    super.initState();
-    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1800));
-    if (widget.isHot) _ctrl.repeat();
-  }
-
-  @override
-  void didUpdateWidget(_StreakIcon old) {
-    super.didUpdateWidget(old);
-    if (widget.isHot && !_ctrl.isAnimating) _ctrl.repeat();
-    if (!widget.isHot && _ctrl.isAnimating) _ctrl.stop();
-  }
-
-  @override
-  void dispose() { _ctrl.dispose(); super.dispose(); }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _ctrl,
-      builder: (_, child) {
-        final scale = widget.isHot
-            ? 1.0 + 0.1 * (0.5 - ((_ctrl.value - 0.5).abs()))
-            : 1.0;
-        return Transform.scale(
-          scale: scale,
-          child: Container(
-            width: 48, height: 48,
-            decoration: BoxDecoration(
-              color: widget.color,
-              borderRadius: AppRadius.card,
-              border: Border.all(color: AppColors.dark, width: 2.5),
-              boxShadow: AppShadows.solidSm,
-            ),
-            child: const Center(
-              child: Text('🔥', style: TextStyle(fontSize: 22)),
-            ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<T>(
+          value: value,
+          hint: Text(hint, style: TextStyle(
+            fontFamily: 'Nunito', fontSize: 13, color: AppColors.textMuted,
+          )),
+          isExpanded: true,
+          dropdownColor: AppColors.surfaceAlt,
+          style: const TextStyle(
+            fontFamily: 'Nunito', fontSize: 13,
+            fontWeight: FontWeight.w600, color: AppColors.textPrimary,
           ),
-        );
-      },
+          items: items,
+          onChanged: onChanged,
+        ),
+      ),
     );
   }
 }

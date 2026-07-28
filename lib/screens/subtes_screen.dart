@@ -49,13 +49,13 @@ class _SubtesScreenState extends State<SubtesScreen> {
         : AppColors.blue;
 
     return Scaffold(
-      backgroundColor: AppColors.cream,
+      backgroundColor: AppColors.surface,
       appBar: AppBar(
-        backgroundColor: AppColors.cream,
+        backgroundColor: AppColors.surface,
         elevation: 0,
         leading: TapScale(
           onTap: () => Navigator.pop(context),
-          child: const Icon(Icons.arrow_back_rounded, color: AppColors.dark),
+          child: const Icon(Icons.arrow_back_rounded, color: AppColors.border),
         ),
         title: Text(sub?.name ?? 'Subtes',
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
@@ -153,8 +153,8 @@ class _ChapterTileState extends State<_ChapterTile>
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: AppRadius.card,
-          border: Border.all(color: AppColors.dark, width: 2),
-          boxShadow: AppShadows.solidSm,
+          border: Border.all(color: AppColors.border, width: 2),
+          boxShadow: AppShadows.card,
         ),
         child: Column(
           children: [
@@ -201,7 +201,7 @@ class _ChapterTileState extends State<_ChapterTile>
                                       style: const TextStyle(
                                           fontSize: 11,
                                           fontWeight: FontWeight.w600,
-                                          color: AppColors.hint)),
+                                          color: AppColors.textMuted)),
                                   const SizedBox(height: 4),
                                   ClipRRect(
                                     borderRadius: AppRadius.pill,
@@ -227,7 +227,7 @@ class _ChapterTileState extends State<_ChapterTile>
                       turns:
                           Tween(begin: 0.0, end: 0.5).animate(_anim),
                       child: const Icon(Icons.keyboard_arrow_down_rounded,
-                          color: AppColors.hint),
+                          color: AppColors.textMuted),
                     ),
                   ],
                 ),
@@ -263,7 +263,7 @@ class _ChapterTileState extends State<_ChapterTile>
             style: const TextStyle(
                 fontSize: 9,
                 fontWeight: FontWeight.w800,
-                color: AppColors.hint,
+                color: AppColors.textMuted,
                 letterSpacing: 1.2)),
       ));
       for (final t in entry.value) {
@@ -344,8 +344,8 @@ class _TopicRowState extends State<_TopicRow> {
                           size: 16,
                           color: _showNotes ||
                                   p.catatan.isNotEmpty
-                              ? AppColors.dark
-                              : AppColors.hint),
+                              ? AppColors.border
+                              : AppColors.textMuted),
                     ),
                   ),
                 ],

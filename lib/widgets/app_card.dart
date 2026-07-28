@@ -25,10 +25,10 @@ class AppCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: color ?? Colors.white,
           borderRadius: AppRadius.card,
-          border: Border.all(color: AppColors.dark, width: 2.5),
+          border: Border.all(color: AppColors.border, width: 2.5),
           boxShadow: [
             BoxShadow(
-              color: shadowColor ?? AppColors.dark,
+              color: shadowColor ?? AppColors.border,
               offset: small ? const Offset(3, 3) : const Offset(5, 5),
               blurRadius: 0,
             ),
@@ -96,15 +96,15 @@ class PrimaryButton extends StatelessWidget {
           decoration: BoxDecoration(
             color: color ?? AppColors.blue,
             borderRadius: AppRadius.pill,
-            border: Border.all(color: AppColors.dark, width: 2.5),
-            boxShadow: AppShadows.solidSm,
+            border: Border.all(color: AppColors.border, width: 2.5),
+            boxShadow: AppShadows.card,
           ),
           child: Row(
             mainAxisSize: fullWidth ? MainAxisSize.max : MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (icon != null) ...[
-                Icon(icon, size: 18, color: textColor ?? AppColors.white),
+                Icon(icon, size: 18, color: textColor ?? Colors.white),
                 const SizedBox(width: 8),
               ],
               Text(
@@ -113,7 +113,7 @@ class PrimaryButton extends StatelessWidget {
                   fontFamily: 'Nunito',
                   fontWeight: FontWeight.w800,
                   fontSize: 15,
-                  color: textColor ?? AppColors.white,
+                  color: textColor ?? Colors.white,
                 ),
               ),
             ],
@@ -144,8 +144,8 @@ class SecondaryButton extends StatelessWidget {
           decoration: BoxDecoration(
             color: color ?? Colors.white,
             borderRadius: AppRadius.pill,
-            border: Border.all(color: borderColor ?? AppColors.dark, width: 2.5),
-            boxShadow: AppShadows.solidSm,
+            border: Border.all(color: borderColor ?? AppColors.border, width: 2.5),
+            boxShadow: AppShadows.card,
           ),
           child: Text(
             label,
@@ -153,7 +153,7 @@ class SecondaryButton extends StatelessWidget {
               fontFamily: 'Nunito',
               fontWeight: FontWeight.w700,
               fontSize: 14,
-              color: AppColors.dark,
+              color: AppColors.border,
             ),
           ),
         ),
@@ -180,9 +180,9 @@ class AppChip extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
           decoration: BoxDecoration(
-            color: selected ? AppColors.dark : color.withValues(alpha: 0.15),
+            color: selected ? AppColors.border : color.withValues(alpha: 0.15),
             borderRadius: AppRadius.pill,
-            border: Border.all(color: AppColors.dark, width: 2),
+            border: Border.all(color: AppColors.border, width: 2),
           ),
           child: Text(
             label,
@@ -190,7 +190,7 @@ class AppChip extends StatelessWidget {
               fontFamily: 'Nunito',
               fontWeight: FontWeight.w700,
               fontSize: 12,
-              color: selected ? Colors.white : AppColors.dark,
+              color: selected ? Colors.white : AppColors.border,
             ),
           ),
         ),
@@ -214,7 +214,7 @@ class SectionHeader extends StatelessWidget {
                   fontFamily: 'Nunito',
                   fontSize: 20,
                   fontWeight: FontWeight.w900,
-                  color: AppColors.dark,
+                  color: AppColors.border,
                 ),
               ),
             ),
@@ -238,10 +238,10 @@ class Watermark extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: AppRadius.pill,
-            border: Border.all(color: AppColors.dark.withValues(alpha: 0.15), width: 1.5),
+            border: Border.all(color: AppColors.border.withValues(alpha: 0.15), width: 1.5),
             boxShadow: [
               BoxShadow(
-                color: AppColors.dark.withValues(alpha: 0.08),
+                color: AppColors.border.withValues(alpha: 0.08),
                 offset: const Offset(2, 2),
                 blurRadius: 0,
               ),
@@ -265,7 +265,7 @@ class Watermark extends StatelessWidget {
                   fontFamily: 'Nunito',
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.dark.withValues(alpha: 0.5),
+                  color: AppColors.border.withValues(alpha: 0.5),
                   letterSpacing: 0.5,
                 ),
               ),
