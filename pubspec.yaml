@@ -32,7 +32,7 @@ dependencies:
   timezone: ^0.9.4
 
   # File I/O for export/import
-  file_picker: ^8.3.7
+  file_picker: ^6.2.1
 
   # Utilities
   intl: ^0.20.2

@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.snbt.snbt_tracker"
-    compileSdk = 36
+    compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
