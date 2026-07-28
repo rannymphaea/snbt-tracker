@@ -498,9 +498,13 @@ class _TryoutScreenState extends State<TryoutScreen> {
       final ratio = score / max;
 
       Color cardColor;
-      if (ratio >= 0.75) cardColor = AppColors.primary;
-      else if (ratio >= 0.55) cardColor = AppColors.secondary;
-      else cardColor = AppColors.coral;
+      if (ratio >= 0.75) {
+        cardColor = AppColors.primary;
+      } else if (ratio >= 0.55) {
+        cardColor = AppColors.secondary;
+      } else {
+        cardColor = AppColors.coral;
+      }
 
       return Padding(
         padding: const EdgeInsets.only(bottom: 10),

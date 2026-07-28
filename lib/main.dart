@@ -1,6 +1,5 @@
 // lib/main.dart -- App entry point
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -10,7 +9,6 @@ import 'screens/dashboard_screen.dart';
 import 'screens/materi_screen.dart';
 import 'screens/tryout_screen.dart';
 import 'screens/riwayat_screen.dart';
-import 'screens/pengaturan_screen.dart';
 import 'screens/subtes_screen.dart';
 import 'utils/app_theme.dart';
 
@@ -44,8 +42,8 @@ class SnbtApp extends StatelessWidget {
           case '/subtes':
             final id = settings.arguments as String;
             return PageRouteBuilder(
-              pageBuilder: (_, anim, __) => SubtesScreen(subtestId: id),
-              transitionsBuilder: (_, anim, __, child) {
+              pageBuilder: (_, anim, _x) => SubtesScreen(subtestId: id),
+              transitionsBuilder: (_, anim, _x, child) {
                 return SlideTransition(
                   position: Tween<Offset>(
                     begin: const Offset(1, 0),

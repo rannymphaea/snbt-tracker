@@ -1,74 +1,45 @@
-# SNBT Study Tracker
+# SNBT Tracker
 
-Gamified study tracker untuk persiapan SNBT 2027 — native Android, offline, no ads.
+Aplikasi pelacak belajar SNBT 2027 — gamified, offline-first, dark mode.
 
-*app by ran ft envy*
+## Download
 
----
+Unduh APK terbaru dari [Releases](../../releases/latest).
 
-## Install
-
-### Android
-> Butuh Android 5.0+
-
-1. [**Download APK →**](https://github.com/rannymphaea/snbt-tracker/releases/latest) ← klik, download, buka, install
-2. Jika muncul popup *"sumber tidak dikenal"* → Settings → izinkan → install lagi
-
-Done. App langsung bisa dipakai tanpa internet.
-
----
-
-### Windows (preview)
-Butuh [Flutter SDK](https://docs.flutter.dev/get-started/install/windows/desktop) terinstal.
-
-```powershell
-cd "path\ke\snbt_tracker"
-flutter pub get
-flutter run -d chrome --wasm
-```
-
-Atau double-click **`JALANKAN_DI_WINDOWS.bat`**
-
----
+Cukup install APK langsung di Android — tidak perlu Play Store.
 
 ## Fitur
 
-| | |
-|---|---|
-| 🌳 Pohon belajar | Tumbuh sesuai progres (6 tahap) |
-| ✅ Checkbox animasi | Partikel + suara saat dicentang |
-| 📊 Dashboard | Ring progres, grafik 7 hari, streak |
-| 📖 6 Subtes SNBT | Materi lengkap offline |
-| 🗒️ Catatan | Tulis catatan per topik |
-| ➕ Topik custom | Tambah materi sendiri |
-| ⚙️ Setelan | Reminder, SFX, export/import data |
+- **Dashboard** — pohon belajar yang tumbuh sesuai level XP, form check-in harian (bab, sub-bab, durasi)
+- **Study** — kelola materi 7 subtes SNBT (PU, PPU, PBM, PK, LBI, LBE, PM), tambah bab/topik kustom
+- **Tryout** — catat skor tryout, pantau tren, set target PTN dan passing grade
+- **History** — grafik waktu belajar harian, tabel 7 hari, breakdown per subtes, kalender aktivitas
+
+## Cara Install
+
+1. Buka halaman [Releases](../../releases/latest)
+2. Unduh file `app-release.apk`
+3. Buka file APK di Android (aktifkan "Install dari sumber tidak dikenal" jika diminta)
+4. Selesai — data tersimpan offline di perangkatmu
+
+## Struktur Materi
+
+7 Subtes SNBT resmi:
+
+| Kode | Nama |
+|------|------|
+| PU | Penalaran Umum |
+| PPU | Pengetahuan dan Pemahaman Umum |
+| PBM | Pemahaman Membaca dan Menulis |
+| PK | Pengetahuan Kuantitatif |
+| LBI | Literasi Bahasa Indonesia |
+| LBE | Literasi Bahasa Inggris |
+| PM | Penalaran Matematika |
+
+## Teknologi
+
+Flutter · SQLite (offline) · Provider · fl_chart
 
 ---
 
-## Build APK sendiri
-
-```powershell
-# Harus di dalam folder snbt_tracker
-flutter pub get
-flutter build apk --release --target-platform android-arm64
-# Output: build\app\outputs\flutter-apk\app-release.apk
-```
-
-Atau double-click **`BUILD_APK.bat`**
-
----
-
-## Tech
-
-Flutter · SQLite · Provider · Offline-first · No backend · No auth
-
----
-
-## Troubleshooting
-
-| Masalah | Solusi |
-|---|---|
-| App tidak mau diinstall | Aktifkan "Install sumber tidak dikenal" di Settings |
-| `No pubspec.yaml` error | Kamu di folder yang salah — harus masuk ke `snbt_tracker/` |
-| `flutter` tidak dikenal | Tambah `flutter\bin` ke PATH |
-| Build gagal | Jalankan `flutter doctor` dan ikuti instruksinya |
+Made for SNBT 2027 preparation.

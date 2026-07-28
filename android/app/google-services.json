@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1022927492901",
+    "project_id": "snbt-2027",
+    "storage_bucket": "snbt-2027.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1022927492901:android:43e612a115acbb307d2ccc",
+        "android_client_info": {
+          "package_name": "com.snbt.snbt_tracker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCGMKJ70uvRc_0NcN-jd7Tqj2LE3nyERXQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

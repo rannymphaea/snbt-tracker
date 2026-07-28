@@ -73,7 +73,7 @@ class _RingProgressState extends State<RingProgress>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _anim,
-      builder: (_, __x) => SizedBox(
+      builder: (_, _) => SizedBox(
         width: widget.size,
         height: widget.size,
         child: CustomPaint(
@@ -180,7 +180,7 @@ class AnimatedCount extends StatelessWidget {
       tween: IntTween(begin: 0, end: value),
       duration: const Duration(milliseconds: 800),
       curve: Curves.easeOut,
-      builder: (_, v, __) => Text(
+      builder: (_, v, _) => Text(
         '$v$suffix',
         style: style ?? Theme.of(context).textTheme.displayMedium,
       ),

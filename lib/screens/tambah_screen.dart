@@ -132,7 +132,7 @@ class _TambahScreenState extends State<TambahScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                             decoration: BoxDecoration(
-                              color: _useNewChapter ? AppColors.blue : Colors.white,
+                              color: _useNewChapter ? AppColors.accent : AppColors.surfaceAlt,
                               borderRadius: AppRadius.pill,
                               border: Border.all(color: AppColors.border, width: 2),
                             ),
@@ -140,7 +140,7 @@ class _TambahScreenState extends State<TambahScreen> {
                               _useNewChapter ? 'Bab Baru ✓' : 'Bab Existing',
                               style: TextStyle(
                                 fontSize: 11, fontWeight: FontWeight.w700,
-                                color: _useNewChapter ? Colors.white : AppColors.border,
+                                color: _useNewChapter ? AppColors.surfaceAlt : AppColors.border,
                               ),
                             ),
                           ),
@@ -221,7 +221,7 @@ class _TambahScreenState extends State<TambahScreen> {
             const SizedBox(height: 12),
             AppCard(
               small: true,
-              color: AppColors.blue.withValues(alpha: 0.05),
+              color: AppColors.accent.withValues(alpha: 0.05),
               child: const Text(
                 'Topik custom akan muncul di halaman subtes terkait. Tidak mengubah materi bawaan.',
                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textMuted),
@@ -248,7 +248,7 @@ class _TambahScreenState extends State<TambahScreen> {
     width: double.infinity,
     padding: const EdgeInsets.symmetric(horizontal: 14),
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: AppColors.surfaceAlt,
       borderRadius: AppRadius.card,
       border: Border.all(color: AppColors.border, width: 2),
     ),

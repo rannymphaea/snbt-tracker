@@ -420,7 +420,7 @@ class _RiwayatScreenState extends State<RiwayatScreen>
                       ),
                     ),
                   ),
-                  swapAnimationDuration: const Duration(milliseconds: 500),
+                  duration: const Duration(milliseconds: 500),
                 ),
               );
             },

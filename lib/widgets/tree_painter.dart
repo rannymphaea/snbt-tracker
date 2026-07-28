@@ -270,7 +270,7 @@ class _TreeMascotWidgetState extends State<TreeMascotWidget>
         child: AnimatedBuilder(
           key: ValueKey(_stage),
           animation: _leafCtrl,
-          builder: (_, __x) => CustomPaint(
+          builder: (_, _) => CustomPaint(
             painter: TreePainter(
               stage: _stage,
               leafAnim: _leafCtrl.value,

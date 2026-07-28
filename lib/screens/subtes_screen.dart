@@ -1,4 +1,4 @@
-// lib/screens/subtes_screen.dart
+// lib/screens/subtes_screen.dart -- Detail screen: chapters + topics with progress
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -41,25 +41,103 @@ class _SubtesScreenState extends State<SubtesScreen> {
     }
   }
 
+  Future<void> _addTopic() async {
+    // Pick chapter first
+    if (_chapters.isEmpty) return;
+    ChapterModel? selectedChapter;
+    final nameCtrl = TextEditingController();
+    final groupCtrl = TextEditingController();
+
+    await showDialog(
+      context: context,
+      builder: (_) => StatefulBuilder(
+        builder: (ctx, setDs) => AlertDialog(
+          title: const Text('Tambah Topik Baru'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropdownButtonFormField<ChapterModel>(
+                decoration: const InputDecoration(labelText: 'Bab'),
+                items: _chapters.map((c) => DropdownMenuItem(
+                  value: c, child: Text(c.name, overflow: TextOverflow.ellipsis),
+                )).toList(),
+                onChanged: (v) => setDs(() => selectedChapter = v),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: groupCtrl,
+                decoration: const InputDecoration(labelText: 'Grup (opsional)'),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: nameCtrl,
+                autofocus: true,
+                decoration: const InputDecoration(labelText: 'Nama Topik'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Batal')),
+            TextButton(
+              onPressed: () async {
+                if (selectedChapter == null || nameCtrl.text.trim().isEmpty) return;
+                final nav = Navigator.of(ctx);
+                await TopicRepo.insertCustom(
+                  subtestId: widget.subtestId,
+                  chapterId: selectedChapter!.id,
+                  chapterName: selectedChapter!.name,
+                  topicName: nameCtrl.text.trim(),
+                  group: groupCtrl.text.trim().isEmpty ? null : groupCtrl.text.trim(),
+                );
+                nav.pop();
+                await _load();
+              },
+              child: const Text('Tambah'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final sub = _subtest;
     final color = sub != null
         ? Color(int.parse(sub.color.replaceFirst('#', '0xFF')))
-        : AppColors.blue;
+        : AppColors.accent;
 
     return Scaffold(
-      backgroundColor: AppColors.surface,
+      backgroundColor: AppColors.bg,
       appBar: AppBar(
-        backgroundColor: AppColors.surface,
+        backgroundColor: AppColors.bg,
         elevation: 0,
-        leading: TapScale(
-          onTap: () => Navigator.pop(context),
-          child: const Icon(Icons.arrow_back_rounded, color: AppColors.border),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textSecondary),
+          onPressed: () => Navigator.pop(context),
         ),
-        title: Text(sub?.name ?? 'Subtes',
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              sub?.name ?? 'Detail Materi',
+              style: TextStyle(
+                fontFamily: 'Nunito',
+                fontSize: 15,
+                fontWeight: FontWeight.w900,
+                color: color,
+              ),
+            ),
+          ],
+        ),
         actions: [
+          // Add topic button
+          IconButton(
+            icon: const Icon(Icons.add_rounded, color: AppColors.textSecondary),
+            onPressed: _addTopic,
+            tooltip: 'Tambah Topik',
+          ),
+          // Progress ring
           if (sub != null)
             Consumer<ProgressProvider>(
               builder: (_, prov, __) => FutureBuilder<double>(
@@ -68,10 +146,10 @@ class _SubtesScreenState extends State<SubtesScreen> {
                   padding: const EdgeInsets.only(right: 12),
                   child: RingProgress(
                     progress: snap.data ?? 0,
-                    size: 42,
-                    strokeWidth: 4,
+                    size: 38,
+                    strokeWidth: 3.5,
                     color: color,
-                    fontSize: 10,
+                    fontSize: 9,
                   ),
                 ),
               ),
@@ -79,17 +157,25 @@ class _SubtesScreenState extends State<SubtesScreen> {
         ],
       ),
       body: _loading
-          ? const Center(
-              child: CircularProgressIndicator(color: AppColors.amber))
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: _chapters.length + 1,
-              itemBuilder: (_, i) {
-                if (i == _chapters.length) return const SizedBox(height: 80);
-                return _ChapterTile(
-                    chapter: _chapters[i], color: color, index: i);
-              },
-            ),
+          ? const Center(child: CircularProgressIndicator(color: AppColors.accent))
+          : _chapters.isEmpty
+              ? Center(
+                  child: Text(
+                    'Belum ada bab.\nTambahkan dari tab Study.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: 'Nunito',
+                      fontSize: 14,
+                      color: AppColors.textMuted,
+                    ),
+                  ),
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
+                  itemCount: _chapters.length,
+                  itemBuilder: (_, i) =>
+                      _ChapterTile(chapter: _chapters[i], color: color, index: i, onChanged: _load),
+                ),
     );
   }
 }
@@ -98,8 +184,14 @@ class _ChapterTile extends StatefulWidget {
   final ChapterModel chapter;
   final Color color;
   final int index;
-  const _ChapterTile(
-      {required this.chapter, required this.color, required this.index});
+  final VoidCallback onChanged;
+
+  const _ChapterTile({
+    required this.chapter,
+    required this.color,
+    required this.index,
+    required this.onChanged,
+  });
 
   @override
   State<_ChapterTile> createState() => _ChapterTileState();
@@ -114,8 +206,7 @@ class _ChapterTileState extends State<_ChapterTile>
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 250));
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 250));
     _anim = CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut);
   }
 
@@ -127,11 +218,7 @@ class _ChapterTileState extends State<_ChapterTile>
 
   void _toggle() {
     setState(() => _open = !_open);
-    if (_open) {
-      _ctrl.forward();
-    } else {
-      _ctrl.reverse();
-    }
+    _open ? _ctrl.forward() : _ctrl.reverse();
   }
 
   @override
@@ -141,32 +228,31 @@ class _ChapterTileState extends State<_ChapterTile>
 
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
-      duration: Duration(milliseconds: 300 + widget.index * 60),
+      duration: Duration(milliseconds: 250 + widget.index * 50),
       curve: Curves.easeOut,
       builder: (_, t, child) => Opacity(
         opacity: t,
-        child: Transform.translate(
-            offset: Offset(-16 * (1 - t), 0), child: child),
+        child: Transform.translate(offset: Offset(0, 12 * (1 - t)), child: child),
       ),
       child: Container(
         margin: const EdgeInsets.only(bottom: 10),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface,
           borderRadius: AppRadius.card,
-          border: Border.all(color: AppColors.border, width: 2),
-          boxShadow: AppShadows.card,
+          border: Border.all(color: AppColors.border, width: 1),
         ),
         child: Column(
           children: [
-            TapScale(
+            InkWell(
               onTap: _toggle,
+              borderRadius: AppRadius.card,
               child: Padding(
                 padding: const EdgeInsets.all(14),
                 child: Row(
                   children: [
                     Container(
                       width: 4,
-                      height: 40,
+                      height: 36,
                       decoration: BoxDecoration(
                         color: widget.color,
                         borderRadius: AppRadius.pill,
@@ -177,42 +263,52 @@ class _ChapterTileState extends State<_ChapterTile>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(ch.name,
-                              style: const TextStyle(
-                                  fontSize: 14, fontWeight: FontWeight.w800)),
+                          Text(
+                            ch.name,
+                            style: const TextStyle(
+                              fontFamily: 'Nunito',
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
                           const SizedBox(height: 2),
                           Consumer<ProgressProvider>(
                             builder: (_, prov, __) {
                               final done = allIds.fold(
-                                  0,
-                                  (s, id) =>
-                                      s +
-                                      (prov.progress[id]?.completedCount ??
-                                          0));
+                                0, (s, id) => s + (prov.progress[id]?.completedCount ?? 0));
                               final total = allIds.length * 3;
-                              final pct = total == 0
-                                  ? 0
-                                  : (done / total * 100).round();
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              final pct = total == 0 ? 0 : (done / total * 100).round();
+                              return Row(
                                 children: [
                                   Text(
-                                      '${allIds.length} topik · $pct%',
-                                      style: const TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w600,
-                                          color: AppColors.textMuted)),
-                                  const SizedBox(height: 4),
-                                  ClipRRect(
-                                    borderRadius: AppRadius.pill,
-                                    child: LinearProgressIndicator(
-                                      value: total == 0
-                                          ? 0
-                                          : done / total,
-                                      backgroundColor:
-                                          const Color(0xFFEEEEEE),
+                                    '${allIds.length} topik',
+                                    style: TextStyle(
+                                      fontFamily: 'Nunito',
+                                      fontSize: 11,
+                                      color: AppColors.textMuted,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: ClipRRect(
+                                      borderRadius: AppRadius.pill,
+                                      child: LinearProgressIndicator(
+                                        value: total == 0 ? 0 : done / total,
+                                        backgroundColor: AppColors.surfaceAlt,
+                                        valueColor: AlwaysStoppedAnimation(widget.color),
+                                        minHeight: 4,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    '$pct%',
+                                    style: TextStyle(
+                                      fontFamily: 'Nunito',
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w700,
                                       color: widget.color,
-                                      minHeight: 5,
                                     ),
                                   ),
                                 ],
@@ -224,10 +320,9 @@ class _ChapterTileState extends State<_ChapterTile>
                     ),
                     const SizedBox(width: 8),
                     RotationTransition(
-                      turns:
-                          Tween(begin: 0.0, end: 0.5).animate(_anim),
+                      turns: Tween(begin: 0.0, end: 0.5).animate(_anim),
                       child: const Icon(Icons.keyboard_arrow_down_rounded,
-                          color: AppColors.textMuted),
+                          color: AppColors.textMuted, size: 22),
                     ),
                   ],
                 ),
@@ -236,8 +331,10 @@ class _ChapterTileState extends State<_ChapterTile>
             SizeTransition(
               sizeFactor: _anim,
               child: Column(
-                children:
-                    _buildGroupedTopics(ch.topics, widget.color),
+                children: [
+                  const Divider(height: 1, color: AppColors.border),
+                  ..._buildGroupedTopics(ch.topics, widget.color),
+                ],
               ),
             ),
           ],
@@ -246,28 +343,29 @@ class _ChapterTileState extends State<_ChapterTile>
     );
   }
 
-  List<Widget> _buildGroupedTopics(
-      List<TopicModel> topics, Color color) {
+  List<Widget> _buildGroupedTopics(List<TopicModel> topics, Color color) {
     final groups = <String, List<TopicModel>>{};
     for (final t in topics) {
-      final g = t.groupName ?? 'Lainnya';
+      final g = t.groupName ?? 'Umum';
       groups.putIfAbsent(g, () => []).add(t);
     }
     final widgets = <Widget>[];
-    widgets.add(
-        const Divider(height: 1, color: Color(0xFFF0EDE8)));
     for (final entry in groups.entries) {
       widgets.add(Padding(
         padding: const EdgeInsets.fromLTRB(16, 10, 16, 4),
-        child: Text(entry.key.toUpperCase(),
-            style: const TextStyle(
-                fontSize: 9,
-                fontWeight: FontWeight.w800,
-                color: AppColors.textMuted,
-                letterSpacing: 1.2)),
+        child: Text(
+          entry.key.toUpperCase(),
+          style: TextStyle(
+            fontFamily: 'Nunito',
+            fontSize: 9,
+            fontWeight: FontWeight.w800,
+            color: AppColors.textMuted,
+            letterSpacing: 1.2,
+          ),
+        ),
       ));
       for (final t in entry.value) {
-        widgets.add(_TopicRow(topic: t, color: color));
+        widgets.add(_TopicRow(topic: t, color: color, onDeleted: widget.onChanged));
       }
     }
     return widgets;
@@ -277,7 +375,8 @@ class _ChapterTileState extends State<_ChapterTile>
 class _TopicRow extends StatefulWidget {
   final TopicModel topic;
   final Color color;
-  const _TopicRow({required this.topic, required this.color});
+  final VoidCallback onDeleted;
+  const _TopicRow({required this.topic, required this.color, required this.onDeleted});
 
   @override
   State<_TopicRow> createState() => _TopicRowState();
@@ -293,6 +392,28 @@ class _TopicRowState extends State<_TopicRow> {
     super.dispose();
   }
 
+  Future<void> _deleteTopic() async {
+    if (!widget.topic.isCustom) return; // only delete custom topics
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Hapus Topik'),
+        content: Text('Hapus topik "${widget.topic.name}"?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Batal')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text('Hapus', style: TextStyle(color: AppColors.coral)),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true) {
+      await TopicRepo.delete(widget.topic.id);
+      widget.onDeleted();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<ProgressProvider>(
@@ -301,11 +422,9 @@ class _TopicRowState extends State<_TopicRow> {
             ProgressModel(topicId: widget.topic.id);
 
         return Container(
-          padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+          padding: const EdgeInsets.fromLTRB(16, 10, 12, 10),
           decoration: const BoxDecoration(
-            border: Border(
-                bottom:
-                    BorderSide(color: Color(0xFFF0EDE8))),
+            border: Border(bottom: BorderSide(color: AppColors.border, width: 0.5)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -313,41 +432,55 @@ class _TopicRowState extends State<_TopicRow> {
               Row(
                 children: [
                   Expanded(
-                    child: Text(widget.topic.name,
-                        style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700)),
+                    child: Text(
+                      widget.topic.name,
+                      style: const TextStyle(
+                        fontFamily: 'Nunito',
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
                   ),
-                  TapScale(
-                    onTap: () => setState(
-                        () => _showNotes = !_showNotes),
+                  // Notes button
+                  GestureDetector(
+                    onTap: () => setState(() => _showNotes = !_showNotes),
                     child: Container(
-                      width: 32,
-                      height: 32,
+                      width: 30,
+                      height: 30,
                       decoration: BoxDecoration(
-                        color: _showNotes ||
-                                p.catatan.isNotEmpty
-                            ? AppColors.amber
-                                .withValues(alpha: 0.2)
+                        color: (_showNotes || p.catatan.isNotEmpty)
+                            ? AppColors.secondary.withValues(alpha: 0.15)
                             : Colors.transparent,
                         borderRadius: AppRadius.sm,
                         border: Border.all(
-                          color: _showNotes ||
-                                  p.catatan.isNotEmpty
-                              ? AppColors.amber
-                              : const Color(0xFFDDDDDD),
-                          width: 1.5,
+                          color: (_showNotes || p.catatan.isNotEmpty)
+                              ? AppColors.secondary
+                              : AppColors.border,
+                          width: 1,
                         ),
                       ),
                       child: Icon(
-                          Icons.edit_note_rounded,
-                          size: 16,
-                          color: _showNotes ||
-                                  p.catatan.isNotEmpty
-                              ? AppColors.border
-                              : AppColors.textMuted),
+                        Icons.edit_note_rounded,
+                        size: 16,
+                        color: (_showNotes || p.catatan.isNotEmpty)
+                            ? AppColors.secondary
+                            : AppColors.textMuted,
+                      ),
                     ),
                   ),
+                  // Delete (only for custom topics)
+                  if (widget.topic.isCustom) ...[
+                    const SizedBox(width: 4),
+                    GestureDetector(
+                      onTap: _deleteTopic,
+                      child: const Padding(
+                        padding: EdgeInsets.all(4),
+                        child: Icon(Icons.delete_outline_rounded,
+                            size: 16, color: AppColors.coral),
+                      ),
+                    ),
+                  ],
                 ],
               ),
               const SizedBox(height: 8),
@@ -358,17 +491,15 @@ class _TopicRowState extends State<_TopicRow> {
                     label: 'Pelajari',
                     color: widget.color,
                     onChanged: (_) => prov.toggleProgress(
-                        widget.topic.id,
-                        ProgressField.pelajari),
+                        widget.topic.id, ProgressField.pelajari),
                   ),
                   const SizedBox(width: 8),
                   AnimatedCheckbox(
                     value: p.latihan,
                     label: 'Latihan',
-                    color: AppColors.amber,
+                    color: AppColors.secondary,
                     onChanged: (_) => prov.toggleProgress(
-                        widget.topic.id,
-                        ProgressField.latihan),
+                        widget.topic.id, ProgressField.latihan),
                   ),
                   const SizedBox(width: 8),
                   AnimatedCheckbox(
@@ -376,21 +507,21 @@ class _TopicRowState extends State<_TopicRow> {
                     label: 'Review',
                     color: AppColors.coral,
                     onChanged: (_) => prov.toggleProgress(
-                        widget.topic.id,
-                        ProgressField.review),
+                        widget.topic.id, ProgressField.review),
                   ),
                 ],
               ),
               if (_showNotes) ...[
                 const SizedBox(height: 8),
                 TextField(
-                  controller: TextEditingController(
-                      text: p.catatan)
-                    ..selection = TextSelection.collapsed(
-                        offset: p.catatan.length),
+                  controller: TextEditingController(text: p.catatan)
+                    ..selection = TextSelection.collapsed(offset: p.catatan.length),
                   maxLines: 2,
                   style: const TextStyle(
-                      fontSize: 12, fontWeight: FontWeight.w600),
+                    fontFamily: 'Nunito',
+                    fontSize: 12,
+                    color: AppColors.textPrimary,
+                  ),
                   decoration: const InputDecoration(
                     hintText: 'Tulis catatan di sini...',
                     isDense: true,
@@ -399,9 +530,9 @@ class _TopicRowState extends State<_TopicRow> {
                   onChanged: (val) {
                     _debounce?.cancel();
                     _debounce = Timer(
-                        const Duration(milliseconds: 500),
-                        () => prov.updateCatatan(
-                            widget.topic.id, val));
+                      const Duration(milliseconds: 500),
+                      () => prov.updateCatatan(widget.topic.id, val),
+                    );
                   },
                 ),
               ],
@@ -412,4 +543,3 @@ class _TopicRowState extends State<_TopicRow> {
     );
   }
 }
-

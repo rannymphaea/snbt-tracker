@@ -122,18 +122,18 @@ class _AnimatedCheckboxState extends State<AnimatedCheckbox>
                     width: 26,
                     height: 26,
                     decoration: BoxDecoration(
-                      color: widget.value ? widget.color : Colors.white,
+                      color: widget.value ? widget.color : AppColors.surfaceAlt,
                       borderRadius: AppRadius.sm,
                       border: Border.all(
                         color: widget.value
                             ? widget.color
-                            : const Color(0xFFD4C9B8),
+                            : AppColors.border,
                         width: 2,
                       ),
                     ),
                     child: AnimatedBuilder(
                       animation: _checkAnim,
-                      builder: (_, __x) => CustomPaint(
+                      builder: (_, _) => CustomPaint(
                         painter: _CheckPainter(_checkAnim.value),
                       ),
                     ),
@@ -141,7 +141,7 @@ class _AnimatedCheckboxState extends State<AnimatedCheckbox>
                   if (_particles.isNotEmpty)
                     AnimatedBuilder(
                       animation: _particleCtrl,
-                      builder: (_, __x) => Stack(
+                      builder: (_, _) => Stack(
                         clipBehavior: Clip.none,
                         children: _particles.map((p) {
                           final t = _particleCtrl.value;
