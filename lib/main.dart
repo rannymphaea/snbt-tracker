@@ -161,7 +161,7 @@ class _CursorPainter extends CustomPainter {
         c,
         hovering ? 9 : 7,
         Paint()
-          ..color = AppColors.yellow
+          ..color = AppColors.amber
           ..style = PaintingStyle.stroke
           ..strokeWidth = 2);
   }
@@ -273,8 +273,8 @@ class _BottomNav extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: AppColors.dark, width: 2)),
-        boxShadow: [BoxShadow(color: AppColors.dark, offset: Offset(0, -3), blurRadius: 0)],
+        border: Border(top: BorderSide(color: AppColors.dark, width: 2.5)),
+        boxShadow: [BoxShadow(color: AppColors.dark, offset: Offset(0, -4), blurRadius: 0)],
       ),
       child: SafeArea(
         child: SizedBox(
@@ -296,20 +296,21 @@ class _BottomNav extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Transform.scale(
-                            scale: 0.9 + 0.1 * t,
+                            scale: 0.88 + 0.12 * t,
                             child: Container(
-                              width: 40,
+                              width: 44,
                               height: 32,
                               decoration: isSelected
                                   ? BoxDecoration(
-                                      color: AppColors.yellow,
+                                      color: AppColors.blue,
                                       borderRadius: AppRadius.pill,
+                                      border: Border.all(color: AppColors.dark, width: 2),
                                     )
                                   : null,
                               child: Icon(
                                 tab.icon,
                                 size: 22,
-                                color: isSelected ? AppColors.dark : AppColors.hint,
+                                color: isSelected ? Colors.white : AppColors.hint,
                               ),
                             ),
                           ),
@@ -317,9 +318,10 @@ class _BottomNav extends StatelessWidget {
                           Text(
                             tab.label,
                             style: TextStyle(
+                              fontFamily: 'Nunito',
                               fontSize: 10,
                               fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                              color: isSelected ? AppColors.dark : AppColors.hint,
+                              color: isSelected ? AppColors.blue : AppColors.hint,
                             ),
                           ),
                         ],

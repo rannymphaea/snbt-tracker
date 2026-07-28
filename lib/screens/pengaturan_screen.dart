@@ -56,14 +56,14 @@ class PengaturanScreen extends StatelessWidget {
                   icon: Icons.upload_rounded,
                   label: 'Import Progres',
                   subtitle: 'Pulihkan progres dari file JSON',
-                  color: AppColors.green,
+                  color: AppColors.lime,
                   onTap: () => _import(context, prov),
                 ),
                 _ActionTile(
                   icon: Icons.delete_outline_rounded,
                   label: 'Reset Semua Progres',
                   subtitle: 'Hapus semua centang dan catatan',
-                  color: AppColors.red,
+                  color: AppColors.coral,
                   onTap: () => _confirmReset(context, prov),
                 ),
               ]),
@@ -271,7 +271,7 @@ class PengaturanScreen extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 13),
                   decoration: BoxDecoration(
-                    color: AppColors.red,
+                    color: AppColors.coral,
                     borderRadius: AppRadius.pill,
                     border: Border.all(color: AppColors.dark, width: 2),
                     boxShadow: AppShadows.solidSm,
@@ -320,8 +320,8 @@ class _SwitchTile extends StatelessWidget {
         Switch(
           value: value,
           onChanged: onChanged,
-          activeColor: AppColors.yellow,
-          activeTrackColor: AppColors.yellow.withValues(alpha: 0.3),
+          activeColor: AppColors.amber,
+          activeTrackColor: AppColors.amber.withValues(alpha: 0.3),
         ),
       ],
     ),
@@ -371,7 +371,7 @@ class _ReminderTile extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
             decoration: BoxDecoration(
-              color: AppColors.yellow,
+              color: AppColors.amber,
               borderRadius: AppRadius.pill,
               border: Border.all(color: AppColors.dark, width: 2),
             ),

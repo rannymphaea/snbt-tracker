@@ -175,7 +175,7 @@ class _TambahScreenState extends State<TambahScreen> {
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
-                        color: AppColors.yellow,
+                        color: AppColors.amber,
                         borderRadius: AppRadius.pill,
                         border: Border.all(color: AppColors.dark, width: 2),
                         boxShadow: AppShadows.solidSm,
@@ -202,16 +202,16 @@ class _TambahScreenState extends State<TambahScreen> {
               child: _success
                   ? AppCard(
                       key: const ValueKey('success'),
-                      color: AppColors.green.withValues(alpha: 0.1),
+                      color: AppColors.lime.withValues(alpha: 0.1),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const Icon(Icons.check_circle_rounded,
-                              color: AppColors.green),
+                              color: AppColors.lime),
                           const SizedBox(width: 8),
                           const Text('Topik berhasil ditambahkan!',
                               style: TextStyle(fontWeight: FontWeight.w800,
-                                  color: AppColors.green, fontSize: 14)),
+                                  color: AppColors.lime, fontSize: 14)),
                         ],
                       ),
                     )

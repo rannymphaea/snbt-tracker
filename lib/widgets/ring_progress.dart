@@ -12,17 +12,21 @@ class RingProgress extends StatefulWidget {
   final bool showLabel;
   final String? label;
   final double fontSize;
+  final Color? trackColor;   // override bgColor (e.g. for dark hero card)
+  final Color? textColor;    // override text color
 
   const RingProgress({
     super.key,
     required this.progress,
     this.size = 120,
     this.strokeWidth = 10,
-    this.color = AppColors.yellow,
+    this.color = AppColors.amber,
     this.bgColor = const Color(0xFFE8E0D4),
     this.showLabel = true,
     this.label,
     this.fontSize = 22,
+    this.trackColor,
+    this.textColor,
   });
 
   @override
@@ -77,7 +81,7 @@ class _RingProgressState extends State<RingProgress>
             progress: _anim.value,
             strokeWidth: widget.strokeWidth,
             color: widget.color,
-            bgColor: widget.bgColor,
+            bgColor: widget.trackColor ?? widget.bgColor,
           ),
           child: Center(
             child: Column(
@@ -89,7 +93,7 @@ class _RingProgressState extends State<RingProgress>
                     style: TextStyle(
                       fontSize: widget.fontSize,
                       fontWeight: FontWeight.w900,
-                      color: AppColors.dark,
+                      color: widget.textColor ?? AppColors.dark,
                       fontFamily: 'Nunito',
                     ),
                   ),

@@ -17,7 +17,7 @@ class AnimatedCheckbox extends StatefulWidget {
     required this.value,
     required this.onChanged,
     required this.label,
-    this.color = AppColors.green,
+    this.color = AppColors.lime,
   });
 
   @override
@@ -80,10 +80,10 @@ class _AnimatedCheckboxState extends State<AnimatedCheckbox>
               dx: (_rng.nextDouble() - 0.5) * 36,
               dy: -(_rng.nextDouble() * 20 + 10),
               color: [
-                AppColors.yellow,
+                AppColors.amber,
                 AppColors.coral,
                 AppColors.blue,
-                AppColors.green,
+                AppColors.lime,
                 AppColors.purple,
               ][i % 5],
               size: 4 + _rng.nextDouble() * 4,

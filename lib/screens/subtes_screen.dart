@@ -80,7 +80,7 @@ class _SubtesScreenState extends State<SubtesScreen> {
       ),
       body: _loading
           ? const Center(
-              child: CircularProgressIndicator(color: AppColors.yellow))
+              child: CircularProgressIndicator(color: AppColors.amber))
           : ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: _chapters.length + 1,
@@ -327,14 +327,14 @@ class _TopicRowState extends State<_TopicRow> {
                       decoration: BoxDecoration(
                         color: _showNotes ||
                                 p.catatan.isNotEmpty
-                            ? AppColors.yellow
+                            ? AppColors.amber
                                 .withValues(alpha: 0.2)
                             : Colors.transparent,
                         borderRadius: AppRadius.sm,
                         border: Border.all(
                           color: _showNotes ||
                                   p.catatan.isNotEmpty
-                              ? AppColors.yellow
+                              ? AppColors.amber
                               : const Color(0xFFDDDDDD),
                           width: 1.5,
                         ),
@@ -365,7 +365,7 @@ class _TopicRowState extends State<_TopicRow> {
                   AnimatedCheckbox(
                     value: p.latihan,
                     label: 'Latihan',
-                    color: AppColors.yellow,
+                    color: AppColors.amber,
                     onChanged: (_) => prov.toggleProgress(
                         widget.topic.id,
                         ProgressField.latihan),

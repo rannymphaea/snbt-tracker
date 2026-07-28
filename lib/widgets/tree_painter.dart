@@ -177,7 +177,7 @@ class TreePainter extends CustomPainter {
         Offset(cx, ground - 115),
       ];
       for (final p in positions) {
-        _drawSparkle(canvas, p, AppColors.yellow);
+        _drawSparkle(canvas, p, AppColors.amber);
       }
     }
   }
