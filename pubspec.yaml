@@ -31,8 +31,7 @@ dependencies:
   flutter_local_notifications: ^18.0.1
   timezone: ^0.9.4
 
-  # File I/O for export/import
-  file_picker: ^6.2.1
+  # File I/O for export/import (path_provider already listed above)
 
   # Utilities
   intl: ^0.20.2

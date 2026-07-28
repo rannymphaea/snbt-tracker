@@ -1,10 +1,10 @@
 // lib/screens/pengaturan_screen.dart
 import 'dart:convert';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:file_picker/file_picker.dart';
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:provider/provider.dart';
+import 'package:path_provider/path_provider.dart';
 import '../data/repository.dart';
 import '../models/models.dart';
 import '../providers/progress_provider.dart';
@@ -132,34 +132,33 @@ class PengaturanScreen extends StatelessWidget {
             .map((a) => a.date).toList(),
       };
       final jsonStr = const JsonEncoder.withIndent('  ').convert(data);
+      final fileName = 'snbt-progress-${DateTime.now().toIso8601String().split('T')[0]}.json';
 
       if (kIsWeb) {
-        // For web: show dialog with content
         if (context.mounted) {
           showDialog(context: context, builder: (_) => AlertDialog(
             title: const Text('Export JSON'),
             content: SelectableText(jsonStr, style: const TextStyle(fontSize: 10)),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(context),
-                  child: const Text('Tutup')),
+              TextButton(onPressed: () => Navigator.pop(context), child: const Text('Tutup')),
             ],
           ));
         }
         return;
       }
 
-      final result = await FilePicker.platform.saveFile(
-        dialogTitle: 'Simpan Progres SNBT',
-        fileName: 'snbt-progress-${DateTime.now().toIso8601String().split('T')[0]}.json',
-        type: FileType.custom,
-        allowedExtensions: ['json'],
-      );
-      if (result != null) {
-        await File(result).writeAsString(jsonStr);
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('✅ Progres berhasil disimpan!')));
-        }
+      // Write to Documents directory (accessible on Android + Windows)
+      final dir = await getApplicationDocumentsDirectory();
+      final file = File('${dir.path}/$fileName');
+      await file.writeAsString(jsonStr);
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('✅ Disimpan ke:\n${file.path}'),
+            duration: const Duration(seconds: 6),
+          ),
+        );
       }
     } catch (e) {
       if (context.mounted) {
@@ -171,45 +170,52 @@ class PengaturanScreen extends StatelessWidget {
 
   Future<void> _import(BuildContext context, ProgressProvider prov) async {
     try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['json'],
-        withData: true,
-      );
-      if (result == null || result.files.isEmpty) return;
+      if (kIsWeb) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Import tidak didukung di browser.')));
+        }
+        return;
+      }
 
-      final bytes = result.files.first.bytes;
-      final path  = result.files.first.path;
-      String jsonStr;
+      // Read the most recent exported file from Documents
+      final dir = await getApplicationDocumentsDirectory();
+      final files = dir.listSync()
+          .whereType<File>()
+          .where((f) => f.path.contains('snbt-progress') && f.path.endsWith('.json'))
+          .toList()
+        ..sort((a, b) => b.path.compareTo(a.path)); // newest first
 
-      if (bytes != null) {
-        jsonStr = utf8.decode(bytes);
-      } else if (path != null) {
-        jsonStr = await File(path).readAsString();
-      } else { return; }
+      if (files.isEmpty) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Tidak ada file export ditemukan di Documents.')));
+        }
+        return;
+      }
 
+      final jsonStr = await files.first.readAsString();
       final data = jsonDecode(jsonStr) as Map<String, dynamic>;
-      // Basic validation
-      if (!data.containsKey('progress')) throw Exception('Invalid format');
+      if (!data.containsKey('progress')) throw Exception('Format tidak valid');
 
       final progressMap = data['progress'] as Map<String, dynamic>;
       for (final entry in progressMap.entries) {
         final v = entry.value as Map<String, dynamic>;
         await ProgressRepo.updateCatatan(entry.key, v['catatan'] as String? ?? '');
-        if (v['pelajari'] == true) {
+        if ((v['pelajari'] as int? ?? 0) == 1) {
           await ProgressRepo.toggle(entry.key, ProgressField.pelajari);
         }
-        if (v['latihan'] == true) {
+        if ((v['latihan'] as int? ?? 0) == 1) {
           await ProgressRepo.toggle(entry.key, ProgressField.latihan);
         }
-        if (v['review'] == true) {
+        if ((v['review'] as int? ?? 0) == 1) {
           await ProgressRepo.toggle(entry.key, ProgressField.review);
         }
       }
       await prov.init();
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('✅ Progres berhasil diimpor!')));
+          SnackBar(content: Text('✅ Diimpor dari: ${files.first.path.split(Platform.pathSeparator).last}')));
       }
     } catch (e) {
       if (context.mounted) {
