@@ -163,24 +163,55 @@ class SectionHeader extends StatelessWidget {
       );
 }
 
-/// "made by ran ft envy" — subtle watermark
+/// "app by ran ft envy" — watermark with cat icon
 class Watermark extends StatelessWidget {
   const Watermark({super.key});
 
   @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(bottom: 4),
-        child: Center(
-          child: Text(
-            'made by ran ft envy',
-            style: TextStyle(
-              fontFamily: 'Nunito',
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: AppColors.dark.withValues(alpha: 0.18),
-              letterSpacing: 1.8,
-            ),
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: AppRadius.pill,
+            border: Border.all(color: AppColors.dark.withValues(alpha: 0.12), width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.dark.withValues(alpha: 0.06),
+                offset: const Offset(2, 2),
+                blurRadius: 0,
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ClipOval(
+                child: Image.asset(
+                  'assets/icon.png',
+                  width: 22,
+                  height: 22,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'app by ran ft envy',
+                style: TextStyle(
+                  fontFamily: 'Nunito',
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.dark.withValues(alpha: 0.45),
+                  letterSpacing: 0.8,
+                ),
+              ),
+            ],
           ),
         ),
-      );
+      ),
+    );
+  }
 }
