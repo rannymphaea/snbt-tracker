@@ -6,6 +6,8 @@ import '../data/repository.dart';
 import '../models/models.dart';
 import '../utils/app_theme.dart';
 import '../widgets/tree_painter.dart';
+import '../widgets/praise_overlay.dart';
+import '../services/cloud_sync.dart';
 import 'pengaturan_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -90,17 +92,21 @@ class _DashboardScreenState extends State<DashboardScreen>
     if (duration <= 0) return;
 
     // Save check-in
-    await CheckinRepo.add(
+    final checkin = await CheckinRepo.add(
       subtestId: _selectedSubtestId!,
       chapterId: _selectedChapterId!,
       topicId: _selectedTopicId,
       durationMinutes: duration,
     );
 
-    // Add XP (optimistic)
+    // Add XP
     _xp = await XpRepo.addFromCheckin(duration);
     _todayMinutes = await CheckinRepo.getTodayMinutes();
     _streak = await ActivityRepo.getStreak();
+
+    // Cloud sync (fire and forget)
+    if (checkin != null) CloudSync.pushCheckin(checkin);
+    CloudSync.pushXp(_xp);
 
     // Trigger animations
     _xpPulseCtrl.forward().then((_) => _xpPulseCtrl.reverse());
@@ -119,13 +125,9 @@ class _DashboardScreenState extends State<DashboardScreen>
       setState(() {});
     }
 
+    // Show praise overlay
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Sesi belajar tercatat! +${duration * 2} XP'),
-          backgroundColor: AppColors.primary,
-        ),
-      );
+      PraiseOverlay.show(context);
     }
   }
 

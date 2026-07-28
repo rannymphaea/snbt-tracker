@@ -102,8 +102,8 @@ class ActivityLog {
 
 // -- v2: Daily check-in session --
 class DailyCheckin {
-  final int? id;
-  final String date;          // yyyy-MM-dd local
+  final String id;        // String id (Firestore-compatible)
+  final String date;     // yyyy-MM-dd local
   final String subtestId;
   final String chapterId;
   final String? topicId;
@@ -111,7 +111,7 @@ class DailyCheckin {
   final String createdAt;
 
   const DailyCheckin({
-    this.id,
+    required this.id,
     required this.date,
     required this.subtestId,
     required this.chapterId,
@@ -119,20 +119,40 @@ class DailyCheckin {
     required this.durationMinutes,
     required this.createdAt,
   });
+
+  Map<String, dynamic> toMap() => {
+    'id': id,
+    'date': date,
+    'subtest_id': subtestId,
+    'chapter_id': chapterId,
+    'topic_id': topicId,
+    'duration_minutes': durationMinutes,
+    'created_at': createdAt,
+  };
+
+  static DailyCheckin fromMap(Map<String, dynamic> m) => DailyCheckin(
+    id: (m['id'] ?? '').toString(),
+    date: m['date'] ?? '',
+    subtestId: m['subtest_id'] ?? '',
+    chapterId: m['chapter_id'] ?? '',
+    topicId: m['topic_id'] as String?,
+    durationMinutes: (m['duration_minutes'] as num?)?.toInt() ?? 0,
+    createdAt: m['created_at'] ?? '',
+  );
 }
 
-// -- v2: Tryout score (replaces old TryoutSession) --
+// -- v2: Tryout score --
 class TryoutScore {
-  final int? id;
-  final String name;          // "Tryout Nasional 1"
-  final String date;          // yyyy-MM-dd
+  final String id;
+  final String name;
+  final String date;
   final int? scoreExpected;
   final int scoreMax;
-  final Map<String, int> scoresDetail; // per-subtest
+  final Map<String, int> scoresDetail;
   final String notes;
 
   const TryoutScore({
-    this.id,
+    required this.id,
     required this.name,
     required this.date,
     this.scoreExpected,
@@ -141,7 +161,25 @@ class TryoutScore {
     this.notes = '',
   });
 
-  int? get delta => null; // computed by caller based on previous score
+  int? get delta => null;
+
+  Map<String, dynamic> toMap() => {
+    'id': id,
+    'name': name,
+    'date': date,
+    'score_expected': scoreExpected,
+    'score_max': scoreMax,
+    'notes': notes,
+  };
+
+  static TryoutScore fromMap(Map<String, dynamic> m) => TryoutScore(
+    id: (m['id'] ?? '').toString(),
+    name: m['name'] ?? '',
+    date: m['date'] ?? '',
+    scoreExpected: (m['score_expected'] as num?)?.toInt(),
+    scoreMax: (m['score_max'] as num?)?.toInt() ?? 1000,
+    notes: m['notes'] as String? ?? '',
+  );
 }
 
 // -- v2: Target PTN --
@@ -157,6 +195,20 @@ class TargetPtn {
     required this.major,
     this.passingGrade,
   });
+
+  Map<String, dynamic> toMap() => {
+    'id': id,
+    'university': university,
+    'major': major,
+    'passing_grade': passingGrade,
+  };
+
+  static TargetPtn fromMap(Map<String, dynamic> m) => TargetPtn(
+    id: (m['id'] as num?)?.toInt() ?? 1,
+    university: m['university'] ?? '',
+    major: m['major'] ?? '',
+    passingGrade: (m['passing_grade'] as num?)?.toInt(),
+  );
 }
 
 // -- v2: User XP & Level --
@@ -178,6 +230,16 @@ class UserXp {
     }
     return UserXp(totalXp: newXp, level: newLevel);
   }
+
+  Map<String, dynamic> toMap() => {
+    'total_xp': totalXp,
+    'level': level,
+  };
+
+  static UserXp fromMap(Map<String, dynamic> m) => UserXp(
+    totalXp: (m['total_xp'] as num?)?.toInt() ?? 0,
+    level: (m['level'] as num?)?.toInt() ?? 1,
+  );
 }
 
 enum ProgressField { pelajari, latihan, review }

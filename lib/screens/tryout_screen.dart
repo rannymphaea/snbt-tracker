@@ -49,6 +49,7 @@ class _TryoutScreenState extends State<TryoutScreen> {
     final max = int.tryParse(_scoreMaxCtrl.text) ?? 1000;
 
     await TryoutScoreRepo.add(TryoutScore(
+      id: '',
       name: name,
       date: _selectedDate.toIso8601String().split('T')[0],
       scoreExpected: expected,
@@ -65,7 +66,7 @@ class _TryoutScreenState extends State<TryoutScreen> {
     await _load();
   }
 
-  Future<void> _deleteScore(int id) async {
+  Future<void> _deleteScore(String id) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
@@ -81,7 +82,7 @@ class _TryoutScreenState extends State<TryoutScreen> {
       ),
     );
     if (confirm == true) {
-      await TryoutScoreRepo.delete(id);
+      await TryoutScoreRepo.delete(int.tryParse(id) ?? 0);
       await _load();
     }
   }
@@ -587,7 +588,7 @@ class _TryoutScreenState extends State<TryoutScreen> {
               ),
               const SizedBox(width: 8),
               GestureDetector(
-                onTap: () => _deleteScore(s.id!),
+                onTap: () => _deleteScore(s.id),
                 child: const Icon(Icons.delete_outline_rounded,
                     color: AppColors.textMuted, size: 18),
               ),

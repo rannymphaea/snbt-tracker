@@ -16,20 +16,25 @@ import 'screens/tryout_screen.dart';
 import 'screens/riwayat_screen.dart';
 import 'screens/subtes_screen.dart';
 import 'utils/app_theme.dart';
+import 'services/cloud_sync.dart';
+import 'services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('id', null);
   Intl.defaultLocale = 'id';
 
-  // Initialize Firebase (best-effort — app works offline without it)
+  // Initialize Firebase
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-  } catch (_) {
-    // Firebase unavailable — offline-only mode
-  }
+  } catch (_) {}
+
+  // Init local notifications
+  await NotificationService.init();
+  await NotificationService.scheduleDailyReminder(hour: 20, minute: 0);
+  await NotificationService.scheduleWeeklyTryoutReminder();
 
   runApp(
     MultiProvider(
@@ -95,8 +100,10 @@ class _AuthGate extends StatelessWidget {
             ),
           );
         }
-        // Logged in → main app
+        // Logged in → pull from cloud then show app
         if (snapshot.hasData && snapshot.data != null) {
+          // Pull Firestore data (once per login, fire and forget)
+          Future.microtask(() => CloudSync.pullAll());
           return const _AppShell();
         }
         // Not logged in → login screen

@@ -407,24 +407,48 @@ class CheckinRepo {
   static String _today() => DateTime.now().toIso8601String().split('T')[0];
   static String _now() => DateTime.now().toIso8601String();
 
-  /// Record a study session
-  static Future<void> add({
+  /// Record a study session — returns the created DailyCheckin for cloud sync
+  static Future<DailyCheckin?> add({
     required String subtestId,
     required String chapterId,
     String? topicId,
     required int durationMinutes,
   }) async {
     final db = await _db;
-    await db.insert('daily_checkins', {
-      'date': _today(),
+    final now = _now();
+    final today = _today();
+    final id = await db.insert('daily_checkins', {
+      'date': today,
       'subtest_id': subtestId,
       'chapter_id': chapterId,
       'topic_id': topicId,
       'duration_minutes': durationMinutes,
-      'created_at': _now(),
+      'created_at': now,
     });
     // Also increment activity_log
     await ActivityRepo.incrementToday();
+    return DailyCheckin(
+      id: id.toString(),
+      date: today,
+      subtestId: subtestId,
+      chapterId: chapterId,
+      topicId: topicId,
+      durationMinutes: durationMinutes,
+      createdAt: now,
+    );
+  }
+
+  /// Upsert for Firestore pull (merge cloud data into local SQLite)
+  static Future<void> upsert(DailyCheckin c) async {
+    final db = await _db;
+    await db.insert('daily_checkins', {
+      'date': c.date,
+      'subtest_id': c.subtestId,
+      'chapter_id': c.chapterId,
+      'topic_id': c.topicId,
+      'duration_minutes': c.durationMinutes,
+      'created_at': c.createdAt,
+    }, conflictAlgorithm: ConflictAlgorithm.ignore);
   }
 
   /// Get all check-ins for today
@@ -492,7 +516,7 @@ class CheckinRepo {
   }
 
   static DailyCheckin _fromRow(Map<String, Object?> r) => DailyCheckin(
-    id: r['id'] as int?,
+    id: (r['id'] as int?)?.toString() ?? '',
     date: r['date'] as String,
     subtestId: r['subtest_id'] as String,
     chapterId: r['chapter_id'] as String,
@@ -541,8 +565,20 @@ class TryoutScoreRepo {
     await db.delete('tryout_scores', where: 'id = ?', whereArgs: [id]);
   }
 
+  static Future<void> upsert(TryoutScore s) async {
+    final db = await _db;
+    await db.insert('tryout_scores', {
+      'name': s.name,
+      'date': s.date,
+      'score_expected': s.scoreExpected,
+      'score_max': s.scoreMax,
+      'scores_detail': jsonEncode(s.scoresDetail),
+      'notes': s.notes,
+    }, conflictAlgorithm: ConflictAlgorithm.ignore);
+  }
+
   static TryoutScore _fromRow(Map<String, Object?> r) => TryoutScore(
-    id: r['id'] as int?,
+    id: (r['id'] as int?)?.toString() ?? '',
     name: r['name'] as String,
     date: r['date'] as String,
     scoreExpected: r['score_expected'] as int?,
@@ -607,5 +643,49 @@ class XpRepo {
       'level': updated.level,
     }, where: 'id = 1');
     return updated;
+  }
+
+  /// Set XP from cloud pull
+  static Future<void> set(UserXp xp) async {
+    final db = await _db;
+    await db.insert('user_xp', {
+      'id': 1,
+      'total_xp': xp.totalXp,
+      'level': xp.level,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+}
+
+// -- ProgressModel serialization extensions for cloud sync --
+extension ProgressModelSync on ProgressModel {
+  Map<String, dynamic> toMap() => {
+    'topic_id': topicId,
+    'pelajari': pelajari ? 1 : 0,
+    'latihan': latihan ? 1 : 0,
+    'review': review ? 1 : 0,
+    'catatan': catatan,
+    'completed_count': completedCount,
+  };
+
+  static ProgressModel fromMap(Map<String, dynamic> m) => ProgressModel(
+    topicId: m['topic_id'] as String,
+    pelajari: (m['pelajari'] as int?) == 1,
+    latihan: (m['latihan'] as int?) == 1,
+    review: (m['review'] as int?) == 1,
+    catatan: m['catatan'] as String? ?? '',
+  );
+}
+
+// -- ProgressRepo upsert for cloud pull --
+extension ProgressRepoSync on ProgressRepo {
+  static Future<void> upsert(ProgressModel p) async {
+    final db = await DatabaseHelper.database;
+    await db.insert('progress', {
+      'topic_id': p.topicId,
+      'pelajari': p.pelajari ? 1 : 0,
+      'latihan': p.latihan ? 1 : 0,
+      'review': p.review ? 1 : 0,
+      'catatan': p.catatan,
+    }, conflictAlgorithm: ConflictAlgorithm.ignore);
   }
 }
