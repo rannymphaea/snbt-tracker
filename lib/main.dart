@@ -3,8 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
+import 'firebase_options.dart';
 import 'providers/progress_provider.dart';
+import 'providers/auth_provider.dart' as app_auth;
+import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/materi_screen.dart';
 import 'screens/tryout_screen.dart';
@@ -16,9 +21,20 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('id', null);
   Intl.defaultLocale = 'id';
+
+  // Initialize Firebase (best-effort — app works offline without it)
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (_) {
+    // Firebase unavailable — offline-only mode
+  }
+
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => app_auth.AuthProvider()),
         ChangeNotifierProvider(create: (_) => ProgressProvider()..init()),
         ChangeNotifierProvider(create: (_) => SettingsProvider()..init()),
       ],
@@ -36,7 +52,7 @@ class SnbtApp extends StatelessWidget {
       title: 'SNBT Tracker',
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
-      home: const _AppShell(),
+      home: const _AuthGate(),
       onGenerateRoute: (settings) {
         switch (settings.name) {
           case '/subtes':
@@ -56,6 +72,35 @@ class SnbtApp extends StatelessWidget {
           default:
             return null;
         }
+      },
+    );
+  }
+}
+
+// -- Auth Gate: show login when not logged in --
+class _AuthGate extends StatelessWidget {
+  const _AuthGate();
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        // While checking auth state
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            backgroundColor: AppColors.bg,
+            body: Center(
+              child: CircularProgressIndicator(color: AppColors.accent),
+            ),
+          );
+        }
+        // Logged in → main app
+        if (snapshot.hasData && snapshot.data != null) {
+          return const _AppShell();
+        }
+        // Not logged in → login screen
+        return const LoginScreen();
       },
     );
   }
@@ -153,43 +198,40 @@ class _BottomNav extends StatelessWidget {
                 child: GestureDetector(
                   onTap: () => onTap(i),
                   behavior: HitTestBehavior.opaque,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          width: isSelected ? 44 : 36,
-                          height: 32,
-                          decoration: isSelected
-                              ? BoxDecoration(
-                                  color: AppColors.secondary,
-                                  borderRadius: AppRadius.pill,
-                                )
-                              : null,
-                          child: Icon(
-                            tab.icon,
-                            size: 20,
-                            color: isSelected
-                                ? AppColors.bg
-                                : AppColors.textMuted,
-                          ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        width: isSelected ? 44 : 36,
+                        height: 32,
+                        decoration: isSelected
+                            ? BoxDecoration(
+                                color: AppColors.secondary,
+                                borderRadius: AppRadius.pill,
+                              )
+                            : null,
+                        child: Icon(
+                          tab.icon,
+                          size: 20,
+                          color: isSelected ? AppColors.bg : AppColors.textMuted,
                         ),
-                        const SizedBox(height: 2),
-                        Text(
-                          tab.label,
-                          style: TextStyle(
-                            fontFamily: 'Nunito',
-                            fontSize: 10,
-                            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                            color: isSelected
-                                ? AppColors.secondary
-                                : AppColors.textMuted,
-                          ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        tab.label,
+                        style: TextStyle(
+                          fontFamily: 'Nunito',
+                          fontSize: 10,
+                          fontWeight: isSelected
+                              ? FontWeight.w800
+                              : FontWeight.w600,
+                          color: isSelected
+                              ? AppColors.secondary
+                              : AppColors.textMuted,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               );

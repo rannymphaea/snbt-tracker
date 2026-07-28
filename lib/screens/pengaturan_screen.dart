@@ -1,4 +1,3 @@
-// lib/screens/pengaturan_screen.dart
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -8,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import '../data/repository.dart';
 import '../models/models.dart';
 import '../providers/progress_provider.dart';
+import '../providers/auth_provider.dart' as app_auth;
 import '../utils/app_theme.dart';
 import '../widgets/animated_checkbox.dart';
 import '../widgets/app_card.dart';
@@ -67,6 +67,39 @@ class PengaturanScreen extends StatelessWidget {
                   onTap: () => _confirmReset(context, prov),
                 ),
               ]),
+              const SizedBox(height: 14),
+
+              _buildSection(context, 'Akun', [
+                _ActionTile(
+                  icon: Icons.logout_rounded,
+                  label: 'Keluar',
+                  subtitle: 'Logout dari akun Firebase',
+                  color: AppColors.coral,
+                  onTap: () async {
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        title: const Text('Keluar'),
+                        content: const Text('Yakin ingin keluar dari akun?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, false),
+                            child: const Text('Batal'),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, true),
+                            child: Text('Keluar',
+                                style: TextStyle(color: AppColors.coral)),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (confirm == true && context.mounted) {
+                      await context.read<app_auth.AuthProvider>().logout();
+                    }
+                  },
+                ),
+              ]),
               const SizedBox(height: 20),
 
               // App info
@@ -83,7 +116,7 @@ class PengaturanScreen extends StatelessWidget {
                     const Text('SNBT Study Tracker',
                         style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900)),
                     const SizedBox(height: 4),
-                    Text('v1.0.0 · Fully offline · No account needed',
+                    Text('v2.0 · Offline-first · Firebase Auth',
                         style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600,
                             color: AppColors.border.withValues(alpha: 0.5))),
                     const SizedBox(height: 10),
