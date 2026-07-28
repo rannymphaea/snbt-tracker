@@ -153,9 +153,8 @@ class PengaturanScreen extends StatelessWidget {
         fileName: 'snbt-progress-${DateTime.now().toIso8601String().split('T')[0]}.json',
         type: FileType.custom,
         allowedExtensions: ['json'],
-        bytes: utf8.encode(jsonStr) as Uint8List?,
       );
-      if (result != null && !kIsWeb) {
+      if (result != null) {
         await File(result).writeAsString(jsonStr);
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
