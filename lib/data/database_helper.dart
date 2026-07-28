@@ -156,6 +156,195 @@ class DatabaseHelper {
         '''INSERT OR IGNORE INTO user_xp (id, total_xp, level) VALUES (1, 0, 1)''');
 
     await batch.commit(noResult: true);
+
+    // -- Seed subtests, chapters, topics --
+    await _seedCurriculum(db);
+  }
+
+  static Future<void> _seedCurriculum(Database db) async {
+    // Check if already seeded
+    final existing = await db.query('subtests', limit: 1);
+    if (existing.isNotEmpty) return;
+
+    final b = db.batch();
+
+    // ── 7 Subtests ────────────────────────────────────────────────────────
+    final subtests = [
+      {'id': 'pu',  'name': 'Penalaran Umum',         'abbr': 'PU',  'color': '0xFF6C63FF', 'sort_order': 1},
+      {'id': 'ppu', 'name': 'Pengetahuan & Pem. Umum','abbr': 'PPU', 'color': '0xFF43B89C', 'sort_order': 2},
+      {'id': 'pbm', 'name': 'Pem. Bacaan & Menulis',  'abbr': 'PBM', 'color': '0xFFF4A261', 'sort_order': 3},
+      {'id': 'pm',  'name': 'Pengetahuan Matematika', 'abbr': 'PM',  'color': '0xFFE76F51', 'sort_order': 4},
+      {'id': 'lb',  'name': 'Literasi Bahasa Inggris','abbr': 'LB',  'color': '0xFF4CC9F0', 'sort_order': 5},
+      {'id': 'pk',  'name': 'Penalaran Matematika',   'abbr': 'PM2', 'color': '0xFFA8DADC', 'sort_order': 6},
+      {'id': 'sains','name': 'Literasi Sains',        'abbr': 'LS',  'color': '0xFFBDE0FE', 'sort_order': 7},
+    ];
+    for (final s in subtests) {
+      b.insert('subtests', s, conflictAlgorithm: ConflictAlgorithm.ignore);
+    }
+
+    // ── Chapters & Topics ────────────────────────────────────────────────
+
+    // PU — Penalaran Umum
+    _addChapter(b, 'pu_1', 'pu', 'Penalaran Induktif', 1, [
+      ('pu_1_1', 'Analogi', null), ('pu_1_2', 'Silogisme', null),
+      ('pu_1_3', 'Deret angka', null), ('pu_1_4', 'Deret huruf', null),
+    ]);
+    _addChapter(b, 'pu_2', 'pu', 'Penalaran Deduktif', 2, [
+      ('pu_2_1', 'Modus Ponens & Tollens', null),
+      ('pu_2_2', 'Pernyataan Majemuk', null),
+      ('pu_2_3', 'Pengambilan Kesimpulan', null),
+    ]);
+    _addChapter(b, 'pu_3', 'pu', 'Penalaran Kuantitatif', 3, [
+      ('pu_3_1', 'Perbandingan kuantitatif', null),
+      ('pu_3_2', 'Interpretasi data', null),
+      ('pu_3_3', 'Soal cerita logika', null),
+    ]);
+    _addChapter(b, 'pu_4', 'pu', 'Penalaran Analitis', 4, [
+      ('pu_4_1', 'Hubungan sebab akibat', null),
+      ('pu_4_2', 'Kekuatan argumen', null),
+    ]);
+
+    // PPU — Pengetahuan & Pemahaman Umum
+    _addChapter(b, 'ppu_1', 'ppu', 'Pengetahuan IPA', 1, [
+      ('ppu_1_1', 'Biologi dasar', null), ('ppu_1_2', 'Fisika dasar', null),
+      ('ppu_1_3', 'Kimia dasar', null), ('ppu_1_4', 'Matematika SMP-SMA', null),
+    ]);
+    _addChapter(b, 'ppu_2', 'ppu', 'Pengetahuan IPS', 2, [
+      ('ppu_2_1', 'Sejarah Indonesia', null), ('ppu_2_2', 'Geografi', null),
+      ('ppu_2_3', 'Ekonomi dasar', null), ('ppu_2_4', 'Sosiologi', null),
+    ]);
+    _addChapter(b, 'ppu_3', 'ppu', 'Bahasa Indonesia', 3, [
+      ('ppu_3_1', 'Tata bahasa', null), ('ppu_3_2', 'Kosakata', null),
+      ('ppu_3_3', 'Ejaan & tanda baca', null),
+    ]);
+    _addChapter(b, 'ppu_4', 'ppu', 'Budaya & Seni', 4, [
+      ('ppu_4_1', 'Budaya Nusantara', null),
+      ('ppu_4_2', 'Seni & sastra', null),
+    ]);
+
+    // PBM — Pemahaman Bacaan & Menulis
+    _addChapter(b, 'pbm_1', 'pbm', 'Pemahaman Bacaan', 1, [
+      ('pbm_1_1', 'Ide pokok & gagasan utama', null),
+      ('pbm_1_2', 'Inferensi & simpulan', null),
+      ('pbm_1_3', 'Pernyataan sesuai/tidak sesuai teks', null),
+      ('pbm_1_4', 'Makna kata dalam konteks', null),
+    ]);
+    _addChapter(b, 'pbm_2', 'pbm', 'Menulis & Penyuntingan', 2, [
+      ('pbm_2_1', 'Pengembangan paragraf', null),
+      ('pbm_2_2', 'Perbaikan kalimat tidak efektif', null),
+      ('pbm_2_3', 'Perbaikan ejaan & tanda baca', null),
+      ('pbm_2_4', 'Koherensi & kohesi teks', null),
+    ]);
+    _addChapter(b, 'pbm_3', 'pbm', 'Jenis Teks', 3, [
+      ('pbm_3_1', 'Teks argumentasi', null),
+      ('pbm_3_2', 'Teks eksposisi', null),
+      ('pbm_3_3', 'Teks narasi', null),
+    ]);
+
+    // PM — Pengetahuan Matematika
+    _addChapter(b, 'pm_1', 'pm', 'Aljabar', 1, [
+      ('pm_1_1', 'Persamaan linear & kuadrat', null),
+      ('pm_1_2', 'Sistem persamaan', null),
+      ('pm_1_3', 'Pertidaksamaan', null),
+      ('pm_1_4', 'Fungsi & komposisi', null),
+    ]);
+    _addChapter(b, 'pm_2', 'pm', 'Geometri & Pengukuran', 2, [
+      ('pm_2_1', 'Bangun datar', null), ('pm_2_2', 'Bangun ruang', null),
+      ('pm_2_3', 'Trigonometri', null), ('pm_2_4', 'Koordinat kartesius', null),
+    ]);
+    _addChapter(b, 'pm_3', 'pm', 'Statistika & Peluang', 3, [
+      ('pm_3_1', 'Mean, median, modus', null),
+      ('pm_3_2', 'Varians & standar deviasi', null),
+      ('pm_3_3', 'Peluang & kombinatorika', null),
+    ]);
+    _addChapter(b, 'pm_4', 'pm', 'Bilangan', 4, [
+      ('pm_4_1', 'Aritmatika & bilangan bulat', null),
+      ('pm_4_2', 'Pecahan & rasio', null),
+      ('pm_4_3', 'Barisan & deret', null),
+      ('pm_4_4', 'Eksponen & logaritma', null),
+    ]);
+
+    // LB — Literasi Bahasa Inggris
+    _addChapter(b, 'lb_1', 'lb', 'Reading Comprehension', 1, [
+      ('lb_1_1', 'Main idea & detail', null),
+      ('lb_1_2', 'Inference & implication', null),
+      ('lb_1_3', 'Vocabulary in context', null),
+      ('lb_1_4', 'Text structure & organization', null),
+    ]);
+    _addChapter(b, 'lb_2', 'lb', 'Grammar & Usage', 2, [
+      ('lb_2_1', 'Tenses & verb forms', null),
+      ('lb_2_2', 'Subject-verb agreement', null),
+      ('lb_2_3', 'Prepositions & articles', null),
+      ('lb_2_4', 'Sentence structure', null),
+    ]);
+    _addChapter(b, 'lb_3', 'lb', 'Writing Skills', 3, [
+      ('lb_3_1', 'Paragraph development', null),
+      ('lb_3_2', 'Cohesion & coherence', null),
+    ]);
+
+    // PK — Penalaran Matematika (Higher Order)
+    _addChapter(b, 'pk_1', 'pk', 'Penalaran Aljabar', 1, [
+      ('pk_1_1', 'Pola & generalisasi', null),
+      ('pk_1_2', 'Persamaan & pertidaksamaan kompleks', null),
+      ('pk_1_3', 'Fungsi lanjut', null),
+    ]);
+    _addChapter(b, 'pk_2', 'pk', 'Penalaran Data', 2, [
+      ('pk_2_1', 'Interpretasi grafik & tabel', null),
+      ('pk_2_2', 'Pemodelan matematika', null),
+      ('pk_2_3', 'Probabilitas lanjut', null),
+    ]);
+    _addChapter(b, 'pk_3', 'pk', 'Penalaran Geometri', 3, [
+      ('pk_3_1', 'Geometri analitik', null),
+      ('pk_3_2', 'Transformasi geometri', null),
+    ]);
+
+    // SAINS — Literasi Sains (Fisika, Kimia, Biologi)
+    _addChapter(b, 'sains_f', 'sains', 'Fisika', 1, [
+      ('sains_f1', 'Mekanika & gerak', 'Fisika'),
+      ('sains_f2', 'Termodinamika', 'Fisika'),
+      ('sains_f3', 'Gelombang & optik', 'Fisika'),
+      ('sains_f4', 'Listrik & magnet', 'Fisika'),
+      ('sains_f5', 'Fisika modern', 'Fisika'),
+    ]);
+    _addChapter(b, 'sains_k', 'sains', 'Kimia', 2, [
+      ('sains_k1', 'Struktur atom & ikatan', 'Kimia'),
+      ('sains_k2', 'Stoikiometri', 'Kimia'),
+      ('sains_k3', 'Larutan & asam-basa', 'Kimia'),
+      ('sains_k4', 'Termokimia & kinetika', 'Kimia'),
+      ('sains_k5', 'Kimia organik dasar', 'Kimia'),
+    ]);
+    _addChapter(b, 'sains_b', 'sains', 'Biologi', 3, [
+      ('sains_b1', 'Sel & biomolekul', 'Biologi'),
+      ('sains_b2', 'Genetika & evolusi', 'Biologi'),
+      ('sains_b3', 'Fisiologi manusia', 'Biologi'),
+      ('sains_b4', 'Ekologi & lingkungan', 'Biologi'),
+      ('sains_b5', 'Kingdom & klasifikasi', 'Biologi'),
+    ]);
+
+    await b.commit(noResult: true);
+  }
+
+  static void _addChapter(
+    Batch b,
+    String chapId,
+    String subtestId,
+    String chapName,
+    int order,
+    List<(String, String, String?)> topics,
+  ) {
+    b.insert('chapters', {
+      'id': chapId, 'subtest_id': subtestId,
+      'name': chapName, 'sort_order': order,
+    }, conflictAlgorithm: ConflictAlgorithm.ignore);
+
+    for (int i = 0; i < topics.length; i++) {
+      final (tid, tname, group) = topics[i];
+      b.insert('topics', {
+        'id': tid, 'chapter_id': chapId,
+        'group_name': group, 'name': tname,
+        'is_custom': 0, 'sort_order': i + 1,
+      }, conflictAlgorithm: ConflictAlgorithm.ignore);
+    }
   }
 
   // -- Migration from v1 to v2 --
