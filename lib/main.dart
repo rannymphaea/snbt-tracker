@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'dart:io' show Platform;
 
 import 'providers/progress_provider.dart';
 import 'screens/dashboard_screen.dart';
@@ -14,10 +14,6 @@ import 'utils/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Allow google_fonts to cache fonts
-  GoogleFonts.config.allowRuntimeFetching = true;
-
   runApp(
     MultiProvider(
       providers: [
@@ -38,14 +34,14 @@ class SnbtApp extends StatelessWidget {
       title: 'SNBT Study Tracker',
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
-      home: const _AppShell(),
+      home: _isDesktop ? const _DesktopCursorWrapper(child: _AppShell()) : const _AppShell(),
       onGenerateRoute: (settings) {
         switch (settings.name) {
           case '/subtes':
             final id = settings.arguments as String;
             return PageRouteBuilder(
-              pageBuilder: (_, anim, __) => SubtesScreen(subtestId: id),
-              transitionsBuilder: (_, anim, __, child) {
+              pageBuilder: (_, anim, __x) => SubtesScreen(subtestId: id),
+              transitionsBuilder: (_, anim, __x, child) {
                 return SlideTransition(
                   position: Tween(
                     begin: const Offset(1.0, 0.0),
@@ -62,6 +58,114 @@ class SnbtApp extends StatelessWidget {
   }
 }
 
+// Only show custom cursor on desktop (Windows/Linux/macOS)
+bool get _isDesktop {
+  if (kIsWeb) return false;
+  try {
+    return Platform.isWindows || Platform.isLinux || Platform.isMacOS;
+  } catch (_) {
+    return false;
+  }
+}
+
+// ─── Custom Windows Cursor ────────────────────────────────────────────────────
+class _DesktopCursorWrapper extends StatefulWidget {
+  final Widget child;
+  const _DesktopCursorWrapper({required this.child});
+
+  @override
+  State<_DesktopCursorWrapper> createState() => _DesktopCursorWrapperState();
+}
+
+class _DesktopCursorWrapperState extends State<_DesktopCursorWrapper>
+    with SingleTickerProviderStateMixin {
+  Offset _pos = Offset.zero;
+  bool _hovering = false;
+  late AnimationController _scaleCtrl;
+  late Animation<double> _scaleAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _scaleCtrl = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 140));
+    _scaleAnim = Tween(begin: 1.0, end: 1.5)
+        .animate(CurvedAnimation(parent: _scaleCtrl, curve: Curves.easeOut));
+  }
+
+  @override
+  void dispose() {
+    _scaleCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.none, // hide system cursor
+      onHover: (e) => setState(() => _pos = e.localPosition),
+      child: Stack(
+        children: [
+          widget.child,
+          // Custom cursor dot
+          Positioned(
+            left: _pos.dx - 10,
+            top: _pos.dy - 10,
+            child: IgnorePointer(
+              child: AnimatedBuilder(
+                animation: _scaleAnim,
+                builder: (_, __) => Transform.scale(
+                  scale: _scaleAnim.value,
+                  child: CustomPaint(
+                    size: const Size(20, 20),
+                    painter: _CursorPainter(hovering: _hovering),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+      onEnter: (_) => setState(() {}),
+    );
+  }
+
+  void setHover(bool v) {
+    if (v == _hovering) return;
+    setState(() => _hovering = v);
+    if (v) {
+      _scaleCtrl.forward();
+    } else {
+      _scaleCtrl.reverse();
+    }
+  }
+}
+
+class _CursorPainter extends CustomPainter {
+  final bool hovering;
+  _CursorPainter({required this.hovering});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final c = Offset(size.width / 2, size.height / 2);
+    // Filled dot
+    canvas.drawCircle(c, 4,
+        Paint()..color = AppColors.dark.withValues(alpha: 0.85));
+    // Ring
+    canvas.drawCircle(
+        c,
+        hovering ? 9 : 7,
+        Paint()
+          ..color = AppColors.yellow
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2);
+  }
+
+  @override
+  bool shouldRepaint(_CursorPainter old) => old.hovering != hovering;
+}
+
+// ─── App Shell ────────────────────────────────────────────────────────────────
 class _AppShell extends StatefulWidget {
   const _AppShell();
 
@@ -226,4 +330,3 @@ class _BottomNav extends StatelessWidget {
     );
   }
 }
-

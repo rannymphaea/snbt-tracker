@@ -14,10 +14,10 @@ dependencies:
   # State management
   provider: ^6.1.2
 
-  # Database — sqflite for Android, sqflite_common_ffi for desktop/web simulation
+  # Database — sqflite (Android/iOS) + sqflite_common_ffi (Windows)
   sqflite: ^2.4.1
   sqflite_common_ffi: ^2.3.4+4
-  sqflite_common_ffi_web: ^0.4.5+4
+  sqflite_common_ffi_web: ^1.1.2
   path: ^1.9.0
   path_provider: ^2.1.5
 
@@ -27,10 +27,7 @@ dependencies:
   # Audio
   audioplayers: ^6.4.0
 
-  # Fonts
-  google_fonts: ^6.2.1
-
-  # Notifications (Android only, best-effort elsewhere)
+  # Notifications — Android only, best-effort on other platforms
   flutter_local_notifications: ^18.0.1
   timezone: ^0.9.4
 
@@ -52,3 +49,17 @@ flutter:
   assets:
     - assets/materi-snbt.json
     - assets/sfx/check.wav
+
+  fonts:
+    - family: Nunito
+      fonts:
+        - asset: assets/fonts/Nunito-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Nunito-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Nunito-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Nunito-ExtraBold.ttf
+          weight: 800
+        - asset: assets/fonts/Nunito-Black.ttf
+          weight: 900
