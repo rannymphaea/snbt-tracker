@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'dart:io' show Platform;
 
 import 'providers/progress_provider.dart';
@@ -14,6 +16,9 @@ import 'utils/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Fix LocaleDataException for fl_chart date labels
+  await initializeDateFormatting('id', null);
+  Intl.defaultLocale = 'id';
   runApp(
     MultiProvider(
       providers: [
